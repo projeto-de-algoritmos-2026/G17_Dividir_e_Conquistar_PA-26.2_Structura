@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api.routes import router as api_router
 
-app = FastAPI(title="Detector de Similaridade Textual", version="1.0")
+app = FastAPI(title="Detector de Similaridade Estrutural", version="1.0")
 
 app.add_middleware(
     CORSMiddleware,

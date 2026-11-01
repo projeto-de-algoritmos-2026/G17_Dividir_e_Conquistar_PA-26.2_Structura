@@ -34,7 +34,7 @@ class ContadorInversoes:
         esquerda = self.ordenar_e_contar(arr[:meio])
         direita = self.ordenar_e_contar(arr[meio:])
         
-        return self._mesclar_e_contar(esquerda, direita)
+        return self.mesclar_e_contar(esquerda, direita)
 
     def mesclar_e_contar(self, esquerda: list[int], direita: list[int]) -> list[int]:
         mesclado = []

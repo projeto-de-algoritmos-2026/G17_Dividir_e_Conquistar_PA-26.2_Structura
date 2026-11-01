@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detector de Similaridade Estrutural</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Análise de Plágio por Inversões</h1>
+        
+        <div class="grid">
+            <div class="box">
+                <label for="textoA">Texto Original (Referência)</label>
+                <textarea id="textoA" placeholder="Cole o texto original aqui..."></textarea>
+            </div>
+            <div class="box">
+                <label for="textoB">Texto Suspeito</label>
+                <textarea id="textoB" placeholder="Cole o texto para comparar..."></textarea>
+            </div>
+        </div>
+
+        <button id="btnAnalisar">Analisar Estrutura</button>
+
+        <div id="painelResultado" class="escondido">
+            <h2>Resultado da Análise</h2>
+            <p>Similaridade: <strong id="resSimilaridade">0%</strong></p>
+            <p>Inversões Detectadas: <span id="resInversoes">0</span></p>
+            <p>Palavras em Comum: <span id="resPalavras">0</span></p>
+        </div>
+    </div>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>
