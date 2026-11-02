@@ -1,4 +1,4 @@
-<h1><font size="6"><b>Nome Projeto</b></font><br></h1>
+<h1><font size="6"><b>Detector de Similaridade</b></font><br></h1>
 <h3><b>Número da Lista:</b> 17<br></h3>
 <h3><i>Conteúdo da disciplina:</i> Dividir e Conquistar<br></h3>
 <h3>Alunos</h3>
@@ -11,9 +11,12 @@
 ---
 
 ## Sobre
-O **Detector de Similaridade Estrutural** é uma ferramenta web desenvolvida para identificar potenciais plágios ou cópias estruturais entre textos. Em vez de utilizar comparações simples de palavras-chave, o sistema analisa a ordem sequencial das ideias. 
+O **Detector de Similaridade** é uma ferramenta web que aponta indícios de plágio entre dois textos, em dois modos:
 
-A aplicação utiliza o algoritmo de **Counting Inversions (Merge Sort modificado)** para calcular a "distância de desordem" entre os textos. Quanto menor o número de inversões necessárias para realinhar os textos, maior a probabilidade de similaridade estrutural.
+- **Estrutural:** procura cópia e reorganização de palavras.
+- **Semântica:** procura frases com o mesmo sentido, mesmo escritas com outras palavras.
+
+Os dois modos usam as mesmas etapas de dividir e conquistar: **Hirschberg** para alinhar os textos e **Counting Inversions (Merge Sort modificado)** para medir o quanto a ordem mudou. Detalhes em [docs/algoritmos.md](docs/algoritmos.md).
 
 ## Screenshots
 
@@ -57,10 +60,12 @@ Com as dependências instaladas e o ambiente virtual ativo, inicie o servidor lo
 uvicorn backend.main:app --reload
 ```
 
-Após o servidor iniciar (rodando em http://localhost:8000), abra o arquivo frontend/index.html diretamente no seu navegador ou através da extensão Live Server da sua IDE para utilizar a aplicação.
+Após o servidor iniciar, acesse http://localhost:8000 no navegador.
+
+A primeira análise semântica baixa o modelo de linguagem e, por isso, precisa de internet e demora mais. As seguintes funcionam offline.
 
 ## Outros
-**Análise Algorítmica:** O núcleo matemático do projeto evita a contagem de força bruta $O(N^2)$ ao implementar o algoritmo de Merge Sort para a contagem de inversões. Isso reduz a complexidade de tempo da análise de similaridade para $O(N \log N)$, garantindo alta performance mesmo ao comparar redações longas.
+**Análise Algorítmica:** O núcleo matemático do projeto evita a contagem de força bruta $O(N^2)$ ao implementar o algoritmo de Merge Sort para a contagem de inversões. Isso reduz a contagem de inversões para $O(N \log N)$. O alinhamento de Hirschberg custa $O(NM)$ em tempo e $O(N+M)$ em espaço, por isso cada texto é limitado a 30.000 caracteres.
 
 **Arquitetura e Escalabilidade:**
 Em um detector de plágio em escala real, a integração de um Banco de Dados não visa criar "inteligência" (no sentido de Machine Learning), mas atuar como um Repositório de Base (Corpus) e um Otimizador de Performance.
