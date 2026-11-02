@@ -1,43 +1,121 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const btnAnalisar = document.getElementById('btnAnalisar');
-    const txtA = document.getElementById('textoA');
-    const txtB = document.getElementById('textoB');
-    const painelResultado = document.getElementById('painelResultado');
+import { buscarAnalises, comparar } from './api.js';
+import { esconderResultado, mostrarResultado } from './resultado.js';
 
-    btnAnalisar.addEventListener('click', async () => {
-        const texto_a = txtA.value.trim();
-        const texto_b = txtB.value.trim();
+const EXEMPLO_A = `A leitura desenvolve o pensamento crítico dos estudantes porque apresenta pontos de vista diferentes. Bibliotecas públicas ampliam o acesso aos livros nas comunidades mais pobres. Sem políticas de incentivo, muitos jovens terminam a escola sem o hábito de ler.`;
+const EXEMPLO_B = `Bibliotecas públicas ampliam o acesso aos livros nas comunidades mais pobres. Quem lê desde cedo aprende a pensar de forma crítica, pois entra em contato com opiniões variadas. Sem políticas de incentivo, muitos jovens terminam a escola sem o hábito de ler.`;
 
-        if (!texto_a || !texto_b) {
-            alert('Por favor, preencha ambos os textos.');
-            return;
-        }
+const btnAnalisar = document.getElementById('btnAnalisar');
+const txtA = document.getElementById('textoA');
+const txtB = document.getElementById('textoB');
+const seletorModo = document.getElementById('seletorModo');
+const descricaoModo = document.getElementById('descricaoModo');
+const campoLimiar = document.getElementById('campoLimiar');
+const limiar = document.getElementById('limiar');
+const valorLimiar = document.getElementById('valorLimiar');
+const erro = document.getElementById('erro');
 
-        btnAnalisar.disabled = true;
-        btnAnalisar.textContent = 'A processar...';
+let modos = [];
+let maxCaracteres = Infinity;
 
-        try {
-            const resposta = await fetch('http://127.0.0.1:8000/api/comparar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ texto_a, texto_b })
-            });
+function mostrarErro(mensagem) {
+    erro.textContent = mensagem;
+    erro.classList.remove('escondido');
+}
 
-            if (!resposta.ok) throw new Error('Erro na comunicação com o servidor.');
+function modoAtual() {
+    const id = seletorModo.querySelector('input:checked').value;
+    return modos.find((modo) => modo.id === id);
+}
 
-            const dados = await resposta.json();
-            
-            document.getElementById('resSimilaridade').textContent = `${(dados.similaridade * 100).toFixed(2)}%`;
-            document.getElementById('resInversoes').textContent = dados.inversoes;
-            document.getElementById('resPalavras').textContent = dados.n_palavras;
-            
-            painelResultado.classList.remove('escondido');
-        } catch (erro) {
-            console.error(erro);
-            alert('Ocorreu um erro ao analisar os textos.');
-        } finally {
-            btnAnalisar.disabled = false;
-            btnAnalisar.textContent = 'Analisar Estrutura';
-        }
+function atualizarModo() {
+    const modo = modoAtual();
+    descricaoModo.textContent = modo.descricao;
+    campoLimiar.classList.toggle('escondido', !modo.usa_limiar);
+    esconderResultado();
+}
+
+function criarSeletor() {
+    modos.forEach((modo, indice) => {
+        const rotulo = document.createElement('label');
+        const opcao = document.createElement('input');
+        opcao.type = 'radio';
+        opcao.name = 'modo';
+        opcao.value = modo.id;
+        opcao.checked = indice === 0;
+        opcao.addEventListener('change', atualizarModo);
+        rotulo.append(opcao, modo.rotulo);
+        seletorModo.append(rotulo);
     });
+    atualizarModo();
+}
+
+function atualizarContador(campo, contador) {
+    const total = campo.value.trim().split(/\s+/).filter(Boolean).length;
+    contador.textContent = `${total} ${total === 1 ? 'palavra' : 'palavras'}`;
+}
+
+function atualizarContadores() {
+    atualizarContador(txtA, document.getElementById('contadorA'));
+    atualizarContador(txtB, document.getElementById('contadorB'));
+}
+
+function textosValidos(texto_a, texto_b) {
+    if (!texto_a || !texto_b) {
+        mostrarErro('Preencha os dois textos para continuar.');
+        return false;
+    }
+    if (Math.max(texto_a.length, texto_b.length) > maxCaracteres) {
+        mostrarErro(`Cada texto pode ter até ${maxCaracteres.toLocaleString('pt-BR')} caracteres.`);
+        return false;
+    }
+    return true;
+}
+
+async function analisar() {
+    const texto_a = txtA.value.trim();
+    const texto_b = txtB.value.trim();
+    const modo = modoAtual();
+
+    erro.classList.add('escondido');
+    if (!textosValidos(texto_a, texto_b)) return;
+
+    btnAnalisar.disabled = true;
+    btnAnalisar.textContent = modo.usa_limiar ? 'Lendo o significado...' : 'Analisando...';
+
+    try {
+        const dados = await comparar({ texto_a, texto_b, modo: modo.id, limiar: Number(limiar.value) });
+        mostrarResultado(dados, texto_a, texto_b);
+    } catch (falha) {
+        esconderResultado();
+        mostrarErro(falha.message);
+    } finally {
+        btnAnalisar.disabled = false;
+        btnAnalisar.textContent = 'Analisar textos';
+    }
+}
+
+async function iniciar() {
+    try {
+        const dados = await buscarAnalises();
+        modos = dados.modos;
+        maxCaracteres = dados.max_caracteres;
+        criarSeletor();
+    } catch (falha) {
+        btnAnalisar.disabled = true;
+        mostrarErro(falha.message);
+    }
+}
+
+btnAnalisar.addEventListener('click', analisar);
+txtA.addEventListener('input', atualizarContadores);
+txtB.addEventListener('input', atualizarContadores);
+limiar.addEventListener('input', () => {
+    valorLimiar.textContent = `${Math.round(limiar.value * 100)}%`;
 });
+document.getElementById('btnExemplo').addEventListener('click', () => {
+    txtA.value = EXEMPLO_A;
+    txtB.value = EXEMPLO_B;
+    atualizarContadores();
+});
+
+iniciar();

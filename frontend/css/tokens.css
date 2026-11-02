@@ -1,0 +1,15 @@
+:root {
+  --papel: #FBF6F2;
+  --tinta: #3B2A2B;
+  --tinta-suave: #6F5A5A;
+  --vermelho: #9C4A4F;
+  --rosa: #F3DAD6;
+  --vinho: #7A3338;
+  --linha: #E6D8D2;
+
+  --fonte-titulo: "Cormorant Garamond", Georgia, serif;
+  --fonte-texto: "Lato", system-ui, sans-serif;
+
+  --raio: 3px;
+  --espaco: 1rem;
+}
