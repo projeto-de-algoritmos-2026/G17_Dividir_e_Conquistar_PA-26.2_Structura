@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-MAX_CARACTERES = 30000
+MAX_CARACTERES = 20000
 
 class TextoRequest(BaseModel):
     texto_a: str = Field(max_length=MAX_CARACTERES)

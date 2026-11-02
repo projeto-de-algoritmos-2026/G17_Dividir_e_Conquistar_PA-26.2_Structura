@@ -5,13 +5,13 @@ from backend.core.analises.semantica import analisar_semantica
 ANALISES = {
     "estrutural": {
         "rotulo": "Estrutural",
-        "descricao": "Procura cópia e reorganização de palavras.",
+        "descricao": "Mede se os textos são construídos do mesmo jeito, sem olhar o assunto.",
         "usa_limiar": False,
         "analisar": analisar_estrutura,
     },
     "semantica": {
         "rotulo": "Semântica",
-        "descricao": "Procura ideias iguais escritas com outras palavras.",
+        "descricao": "Procura plágio: ideias do original no texto suspeito, mesmo reescritas.",
         "usa_limiar": True,
         "analisar": analisar_semantica,
     },

@@ -65,6 +65,7 @@
                     <div id="marcadoB" class="texto-marcado"></div>
                 </div>
             </div>
+            <p id="resLegenda" class="contador"></p>
 
             <div id="blocoPares" class="escondido">
                 <h2>Frases equivalentes</h2>
@@ -74,14 +75,10 @@
 
         <details class="como-funciona">
             <summary>Como funciona</summary>
-            <p>Os dois modos seguem as mesmas etapas e mudam apenas a unidade comparada: palavras ou frases.</p>
-            <ol>
-                <li><strong>Alinhamento:</strong> o algoritmo de Hirschberg divide o texto ao meio para achar a maior sequência em comum.</li>
-                <li><strong>Blocos:</strong> as correspondências vizinhas são unidas, então mover um parágrafo conta como um único movimento.</li>
-                <li><strong>Ordem:</strong> um merge sort modificado conta as inversões entre blocos e ignora pequenas trocas locais.</li>
-                <li><strong>Nota:</strong> cobertura × (0,5 + 0,5 × ordem). Citações entre aspas e referências são ignoradas.</li>
-            </ol>
-            <p>O resultado é um indício para revisão humana, não uma prova de plágio.</p>
+            <p>Cada modo responde a uma pergunta diferente.</p>
+            <p><strong>Estrutural: os textos são construídos do mesmo jeito?</strong> Cada palavra vira uma categoria, como artigo, preposição ou tamanho, e o assunto deixa de importar. O algoritmo de Hirschberg divide o texto ao meio para achar a maior sequência de formatos em comum, e a nota desconta o que coincidiria por acaso. Uma medida à parte mostra as palavras idênticas.</p>
+            <p><strong>Semântica: as ideias vêm do original?</strong> Cada frase vira um vetor de significado. Hirschberg alinha as frases equivalentes, e um merge sort modificado conta quanto a ordem das ideias mudou. A nota é cobertura × (0,5 + 0,5 × ordem).</p>
+            <p>Citações entre aspas e referências são ignoradas. O resultado orienta uma revisão humana e não prova plágio.</p>
         </details>
     </main>
 

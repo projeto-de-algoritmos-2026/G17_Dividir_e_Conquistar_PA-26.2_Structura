@@ -8,6 +8,9 @@ def _ultima_linha(a: list, b: list, iguais) -> list[int]:
         anterior = atual
     return anterior
 
+def tamanho_lcs(a: list, b: list, iguais) -> int:
+    return _ultima_linha(a, b, iguais)[-1]
+
 def hirschberg(a: list, b: list, iguais) -> list[tuple]:
     #LCS por dividir e conquistar: O(nm) em tempo e O(n + m) em espaço.
     if not a or not b:

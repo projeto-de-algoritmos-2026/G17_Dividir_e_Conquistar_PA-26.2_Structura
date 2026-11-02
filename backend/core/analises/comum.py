@@ -63,19 +63,19 @@ def calcular_ordem(blocos: list[list[tuple[int, int]]], n_pares: int, tolerancia
         return 1.0
     return 1 - contar_significativas(inicios, tolerancia) / maximo
 
-def classificar(nota: float) -> str:
-    return next(faixa for limite, faixa in FAIXAS if nota >= limite)
+def classificar(nota: float, faixas: list[tuple[float, str]] = FAIXAS) -> str:
+    return next(faixa for limite, faixa in faixas if nota >= limite)
 
 def explicar(cobertura: float, ordem: float, unidade: str) -> str:
     if cobertura == 0:
-        return f"Não há {unidade} suficientes em comum para indicar semelhança."
+        return f"Nenhuma das {unidade} do texto suspeito tem equivalente no original."
     if ordem >= 0.8:
         complemento = "praticamente na mesma ordem"
     elif ordem >= 0.4:
         complemento = "com parte da ordem alterada"
     else:
         complemento = "em ordem bastante diferente"
-    return f"{cobertura:.0%} das {unidade} do texto suspeito aparecem no original, {complemento}."
+    return f"{cobertura:.0%} das {unidade} do texto suspeito têm equivalente no original, {complemento}."
 
 def comparar_segmentos(seg_a: list[Segmento], seg_b: list[Segmento], iguais, unidade: str, min_pares: int, min_bloco: int, tolerancia: int, descrever_par=None) -> dict:
     #Pipeline comum: cada modo só define como segmentar e o que conta como igual.
