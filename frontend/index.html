@@ -73,7 +73,7 @@
             <summary>Como funciona</summary>
             <p>Cada modo responde a uma pergunta diferente.</p>
             <p><strong>Estrutural: os textos são construídos do mesmo jeito?</strong> Cada palavra vira uma categoria, como artigo, preposição ou tamanho, e o assunto deixa de importar. O algoritmo de Hirschberg divide o texto ao meio para achar a maior sequência de formatos em comum, e a nota desconta o que coincidiria por acaso. Uma medida à parte mostra as palavras idênticas.</p>
-            <p><strong>Semântica: as ideias vêm do original?</strong> Cada frase vira um vetor de significado. Hirschberg alinha as frases equivalentes, e um merge sort modificado conta quanto a ordem das ideias mudou. A nota é o maior valor entre essa comparação frase a frase e a proximidade geral entre os dois textos, o que permite reconhecer reescritas que fundem ou dividem frases.</p>
+            <p><strong>Semântica: as ideias vêm do original?</strong> Cada frase vira um vetor de significado. Hirschberg alinha as frases equivalentes, e um merge sort modificado conta quanto a ordem das ideias mudou. Cada frase pesa conforme sua similaridade, e a nota é o maior valor entre essa comparação e a proximidade geral entre os dois textos, o que permite reconhecer reescritas que fundem ou dividem frases.</p>
             <p>Citações entre aspas e referências são ignoradas. O resultado orienta uma revisão humana e não prova plágio.</p>
         </details>
     </main>

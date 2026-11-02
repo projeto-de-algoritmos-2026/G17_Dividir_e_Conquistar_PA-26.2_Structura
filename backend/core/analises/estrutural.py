@@ -102,7 +102,8 @@ def analisar_estrutura(texto_a: str, texto_b: str) -> dict:
     literal = comparar_segmentos(palavras_a, palavras_b, iguais, "palavras", min_pares, min_bloco, TOLERANCIA)
     _, ordem, trechos, inversoes, _ = [metrica["valor"] for metrica in literal["metricas"]]
     #Conta todas as palavras: "céu azul" e "azul céu" são idênticas, mesmo sem formar bloco.
-    identicas = len(parear(len(palavras_a), len(palavras_b), iguais)) / len(palavras_b) if palavras_b else 0.0
+    identicas = len(parear(len(palavras_a), len(palavras_b), iguais))
+    proporcao = identicas / len(palavras_b) if palavras_b else 0.0
 
     faixa = classificar(nota, FAIXAS)
     return {
@@ -113,7 +114,7 @@ def analisar_estrutura(texto_a: str, texto_b: str) -> dict:
         "metricas": [
             {"rotulo": "Formato em comum", "valor": f"{bruta:.0%}"},
             {"rotulo": "Esperado por acaso", "valor": f"{acaso:.0%}"},
-            {"rotulo": "Palavras idênticas", "valor": f"{identicas:.0%}"},
+            {"rotulo": "Palavras idênticas", "valor": f"{identicas} de {len(palavras_b)} ({proporcao:.0%})"},
             {"rotulo": "Trechos idênticos", "valor": trechos},
             {"rotulo": "Ordem dos trechos", "valor": ordem},
             {"rotulo": "Inversões", "valor": inversoes},

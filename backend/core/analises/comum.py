@@ -75,9 +75,9 @@ def explicar(cobertura: float, ordem: float, unidade: str) -> str:
         complemento = "com parte da ordem alterada"
     else:
         complemento = "em ordem bastante diferente"
-    return f"{cobertura:.0%} das {unidade} do texto suspeito têm equivalente no original, {complemento}."
+    return f"O texto suspeito tem {cobertura:.0%} de equivalência com o original, {complemento}."
 
-def comparar_segmentos(seg_a: list[Segmento], seg_b: list[Segmento], iguais, unidade: str, min_pares: int, min_bloco: int, tolerancia: int, descrever_par=None) -> dict:
+def comparar_segmentos(seg_a: list[Segmento], seg_b: list[Segmento], iguais, unidade: str, min_pares: int, min_bloco: int, tolerancia: int, descrever_par=None, peso=None) -> dict:
     #Pipeline comum: cada modo só define como segmentar e o que conta como igual.
     pares = parear(len(seg_a), len(seg_b), iguais)
     if len(pares) < min_pares:
@@ -87,7 +87,9 @@ def comparar_segmentos(seg_a: list[Segmento], seg_b: list[Segmento], iguais, uni
     blocos = [bloco for bloco in agrupar_em_blocos(pares) if len(bloco) >= min_bloco]
     pares = [par for bloco in blocos for par in bloco]
 
-    cobertura = len(pares) / len(seg_b) if seg_b else 0.0
+    #Sem peso, cada par vale 1; com peso, vale o quanto os dois segmentos se parecem.
+    pontos = sum(peso(i, j) for i, j in pares) if peso else len(pares)
+    cobertura = pontos / len(seg_b) if seg_b else 0.0
     ordem = calcular_ordem(blocos, len(pares), tolerancia) if pares else 0.0
     nota = cobertura * (0.5 + 0.5 * ordem)
 

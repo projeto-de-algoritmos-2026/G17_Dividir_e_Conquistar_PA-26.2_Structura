@@ -9,7 +9,7 @@ from backend.core.analises.comum import Segmento, classificar, comparar_segmento
 MODELO = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 LIMIAR_FRASE = 0.55 #abaixo disso, duas frases não contam como a mesma ideia
 SIMILARIDADE_NULA = 0.3 #textos sem relação ficam abaixo disso
-SIMILARIDADE_TOTAL = 0.7 #reescritas completas ficam acima disso
+SIMILARIDADE_TOTAL = 0.7 #reescritas completas costumam ficar perto disso
 
 @lru_cache
 def carregar_modelo() -> TextEmbedding:
@@ -57,11 +57,14 @@ def analisar_semantica(texto_a: str, texto_b: str) -> dict:
         "texto_b": frases_b[j].texto,
         "nota": round(float(similaridades[i, j]), 2),
     }
-    resultado = comparar_segmentos(frases_a, frases_b, iguais, "frases", 1, 1, 0, descrever_par)
+    peso = lambda i, j: min(1.0, float(similaridades[i, j]))
+    resultado = comparar_segmentos(frases_a, frases_b, iguais, "frases", 1, 1, 0, descrever_par, peso)
 
     #Reescritas podem fundir ou dividir frases: vale o maior sinal entre as duas visões.
     geral = comparar_textos_inteiros(vetores_a, vetores_b)
-    nota_geral = float(np.clip((geral - SIMILARIDADE_NULA) / (SIMILARIDADE_TOTAL - SIMILARIDADE_NULA), 0, 1))
+    #A escala realça reescritas, mas nunca passa da similaridade medida de verdade.
+    escalada = (geral - SIMILARIDADE_NULA) / (SIMILARIDADE_TOTAL - SIMILARIDADE_NULA)
+    nota_geral = max(0.0, min(escalada, geral, 1.0))
     resultado["metricas"].insert(0, {"rotulo": "Ideia geral", "valor": f"{nota_geral:.0%}"})
 
     if nota_geral > resultado["nota"]:
