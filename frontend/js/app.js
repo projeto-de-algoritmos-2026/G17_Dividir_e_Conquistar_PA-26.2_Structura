@@ -84,7 +84,7 @@ async function analisar() {
 
     try {
         const dados = await comparar({ texto_a, texto_b, modo: modo.id, limiar: Number(limiar.value) });
-        mostrarResultado(dados, texto_a, texto_b);
+        mostrarResultado(dados, texto_a, texto_b, modo.id);
     } catch (falha) {
         esconderResultado();
         mostrarErro(falha.message);

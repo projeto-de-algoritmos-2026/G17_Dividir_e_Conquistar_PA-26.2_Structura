@@ -76,17 +76,25 @@ export function esconderResultado() {
     painel.classList.add('escondido');
 }
 
-export function mostrarResultado(dados, textoA, textoB) {
+export function mostrarResultado(dados, textoA, textoB, tipoAnalise) {
     animarNota(dados.nota);
     document.getElementById('resFaixa').textContent = `Indício de semelhança ${dados.faixa}`;
     document.getElementById('resExplicacao').textContent = dados.explicacao;
     desenharMetricas(dados.metricas);
 
-    const faixasA = dados.trechos.map((t, id) => ({ inicio: t.inicio_a, fim: t.fim_a, id }));
-    const faixasB = dados.trechos.map((t, id) => ({ inicio: t.inicio_b, fim: t.fim_b, id }));
-    desenharTexto(document.getElementById('marcadoA'), textoA, faixasA);
-    desenharTexto(document.getElementById('marcadoB'), textoB, faixasB);
-    desenharPares(dados.pares);
+    const elMarcadoA = document.getElementById('marcadoA');
+    const elMarcadoB = document.getElementById('marcadoB');
 
+    if (tipoAnalise === 'estrutural') {
+        elMarcadoA.textContent = textoA;
+        elMarcadoB.textContent = textoB;
+    } else {
+        const faixasA = dados.trechos.map((t, id) => ({ inicio: t.inicio_a, fim: t.fim_a, id }));
+        const faixasB = dados.trechos.map((t, id) => ({ inicio: t.inicio_b, fim: t.fim_b, id }));
+        desenharTexto(elMarcadoA, textoA, faixasA);
+        desenharTexto(elMarcadoB, textoB, faixasB);
+    }
+
+    desenharPares(dados.pares);
     painel.classList.remove('escondido');
 }

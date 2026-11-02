@@ -24,5 +24,32 @@ def extrair_palavras(texto: str) -> list[Segmento]:
 def analisar_estrutura(texto_a: str, texto_b: str, limiar: float) -> dict:
     palavras_a = extrair_palavras(texto_a)
     palavras_b = extrair_palavras(texto_b)
-    iguais = lambda i, j: palavras_a[i].texto == palavras_b[j].texto
+
+    iguais = lambda i, j: ProcessadorEstruturalLeve.classificar_tamanho(palavras_a[i].texto) == \
+                          ProcessadorEstruturalLeve.classificar_tamanho(palavras_b[j].texto)
     return comparar_segmentos(palavras_a, palavras_b, iguais, "palavras", MIN_PARES, MIN_BLOCO, TOLERANCIA)
+
+class ProcessadorEstruturalLeve:
+    """Extração de estrutura baseada em proxy de tamanho de palavras (Pure Python)."""
+    #proxy de tamanho de palavras
+    @staticmethod
+    def classificar_tamanho(palavra: str) -> str:
+        tamanho = len(palavra)
+        if tamanho <= 3:
+            return "CURTA"  #artigos preposições pronomes curtos
+        elif tamanho <= 7:
+            return "MEDIA"  #substantivos comuns e verbos
+        else:
+            return "LONGA"  #advérbios adjetivos complexos ou nomes compostos
+
+    @staticmethod
+    def extrair_estrutura(texto: str) -> list[str]:
+        texto_limpo = re.sub(r'[^\w\s]', '', texto.lower())
+        palavras = texto_limpo.split()
+        
+        estrutura = []
+        for palavra in palavras:
+            categoria = ProcessadorEstruturalLeve.classificar_tamanho(palavra)
+            estrutura.append(categoria)
+            
+        return estrutura
