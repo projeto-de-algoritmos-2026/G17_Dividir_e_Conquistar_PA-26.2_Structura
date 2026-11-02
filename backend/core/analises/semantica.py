@@ -5,9 +5,12 @@ import numpy as np
 from fastembed import TextEmbedding
 
 from backend.core.analises.comum import Segmento, classificar, comparar_segmentos, normalizar, ocultar_citacoes
+from backend.core.analises.estrutural import extrair_palavras
 
 MODELO = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 LIMIAR_FRASE = 0.55 #abaixo disso, duas frases não contam como a mesma ideia
+PESO_PALAVRAS = 0.65 #quanto as palavras em comum aproximam a nota de 1
+NEGACOES = {"nao", "nunca", "jamais"}
 SIMILARIDADE_NULA = 0.3 #textos sem relação ficam abaixo disso
 SIMILARIDADE_TOTAL = 0.7 #reescritas completas costumam ficar perto disso
 
@@ -28,6 +31,23 @@ def vetorizar(frases: list[Segmento]) -> np.ndarray:
     #O modelo diferencia maiúsculas e acentos, o que derrubava cópias com grafia alterada.
     vetores = np.array(list(carregar_modelo().embed([normalizar(f.texto) for f in frases])))
     return vetores / np.linalg.norm(vetores, axis=1, keepdims=True)
+
+def tem_negacao(frase: Segmento) -> bool:
+    return not NEGACOES.isdisjoint(normalizar(frase.texto).split())
+
+def sobreposicao_palavras(frase_a: Segmento, frase_b: Segmento) -> float:
+    #Coeficiente de Dice entre as palavras de conteúdo das duas frases.
+    if tem_negacao(frase_a) != tem_negacao(frase_b):
+        return 0.0
+    palavras_a = {p.texto for p in extrair_palavras(frase_a.texto)}
+    palavras_b = {p.texto for p in extrair_palavras(frase_b.texto)}
+    total = len(palavras_a) + len(palavras_b)
+    return 2 * len(palavras_a & palavras_b) / total if total else 0.0
+
+def reforcar_com_palavras(similaridades: np.ndarray, frases_a: list[Segmento], frases_b: list[Segmento]) -> np.ndarray:
+    #Em frases curtas o modelo é impreciso: palavras em comum são uma evidência a mais.
+    sobreposicao = np.array([[sobreposicao_palavras(a, b) for b in frases_b] for a in frases_a])
+    return similaridades + (1 - similaridades) * PESO_PALAVRAS * sobreposicao
 
 def comparar_textos_inteiros(vetores_a: np.ndarray, vetores_b: np.ndarray) -> float:
     #A média captura a ideia geral, mesmo quando uma frase não corresponde a outra.
@@ -50,7 +70,7 @@ def analisar_semantica(texto_a: str, texto_b: str) -> dict:
 
     vetores_a = vetorizar(frases_a)
     vetores_b = vetorizar(frases_b)
-    similaridades = vetores_a @ vetores_b.T
+    similaridades = reforcar_com_palavras(vetores_a @ vetores_b.T, frases_a, frases_b)
     iguais = lambda i, j: similaridades[i, j] >= LIMIAR_FRASE
     descrever_par = lambda i, j: {
         "texto_a": frases_a[i].texto,
