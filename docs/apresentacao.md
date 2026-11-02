@@ -7,7 +7,7 @@
    - Mostre "Esperado por acaso" e explique por que ele é descontado.
 3. **Modo semântico.** Clique em "Usar exemplo" e analise.
    - Em "Frases equivalentes", mostre a frase reescrita que nenhuma comparação de palavras reconheceria.
-   - Mude a exigência no controle deslizante e veja o efeito.
+   - Mostre "Ideia geral": ela reconhece reescritas em que uma frase não corresponde a outra.
 4. **Reordenação.** Troque de lugar as frases do texto suspeito e analise de novo.
    - **Counting Inversions:** a cobertura não muda, mas a ordem cai.
 5. **Contraste.** Compare uma paráfrase nos dois modos: a suspeita de plágio é alta e a similaridade estrutural é baixa.

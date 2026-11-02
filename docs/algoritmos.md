@@ -61,10 +61,11 @@ Cada token vira uma categoria: pontuação, número, classe gramatical (artigo, 
 ```
 formato = 2 × LCS(formato A, formato B) / (tamanho A + tamanho B)
 acaso   = a mesma conta com B embaralhado (3 vezes, em amostra de 800 tokens)
+          × min(1, tokens dos dois textos / 40)
 nota    = (formato − acaso) / (1 − acaso), nunca abaixo de 0
 ```
 
-Sem o desconto, dois textos quaisquer em português já pareceriam bastante similares, porque usam as mesmas categorias. Embaralhar mantém as categorias, mas destrói a construção, o que mede justamente essa parte devida ao acaso.
+Sem o desconto, dois textos quaisquer em português já pareceriam bastante similares, porque usam as mesmas categorias. Embaralhar mantém as categorias, mas destrói a construção, o que mede justamente essa parte devida ao acaso. Em textos curtos, embaralhar quase não muda a sequência, por isso o desconto é proporcional ao tamanho.
 
 **Palavras idênticas** é uma medida à parte, que não entra na nota: compara as palavras sem stopwords, com Hirschberg, blocos e inversões. É ela que define os trechos destacados na tela.
 
@@ -77,10 +78,14 @@ Sem o desconto, dois textos quaisquer em português já pareceriam bastante simi
 ## Nota do modo semântico
 
 ```
+frases    = cobertura × (0,5 + 0,5 × ordem)
+geral     = (similaridade da média dos vetores − 0,30) / (0,70 − 0,30), entre 0 e 1
+nota      = max(frases, geral)
 cobertura = frases do suspeito com equivalente no original / total de frases do suspeito
 ordem     = 1 − inversões entre blocos / max(C(blocos, 2), frases em comum − 1)
-nota      = cobertura × (0,5 + 0,5 × ordem)
 ```
+
+A visão geral existe porque reescritas podem fundir ou dividir frases, e aí a comparação uma a uma falha.
 
 | Nota | Faixa |
 |---|---|
@@ -94,4 +99,4 @@ As faixas dos dois modos são pontos de partida: ainda não foram calibradas com
 
 `backend/core/analises/semantica.py`
 
-Cada frase é normalizada (minúsculas, sem acentos) e vira um vetor no modelo multilíngue `paraphrase-multilingual-MiniLM-L12-v2`. Duas frases contam como iguais quando a similaridade de cosseno atinge o limiar escolhido na tela (70% por padrão). A partir daí, Hirschberg alinha as frases e as inversões medem quanto a ordem das ideias mudou.
+Cada frase é normalizada (minúsculas, sem acentos) e vira um vetor no modelo multilíngue `paraphrase-multilingual-MiniLM-L12-v2`. Duas frases contam como iguais quando a similaridade de cosseno atinge 0,55. A partir daí, Hirschberg alinha as frases e as inversões medem quanto a ordem das ideias mudou.

@@ -31,7 +31,6 @@ Acesse http://localhost:8000. O front agora é servido pelo backend, então não
 
 - Embeddings locais com `fastembed`, usando o mesmo pipeline do modo estrutural (`S1`).
 - Lista de frases equivalentes com a nota de cada par (`S6`).
-- Controle de exigência na tela (`S7`).
 
 **Frontend**
 
@@ -137,3 +136,28 @@ Cada modo agora responde a uma pergunta própria, conforme a tabela em `docs/alg
 | "Eu amo você." × "Eu te amo." | 0% | 0% | 100% |
 
 **Limitações de frases curtas no modo semântico:** com poucas palavras, o modelo é menos preciso. "Eu amo você." × "Eu te amo." fica em 0,60, abaixo do limiar, e "Bom dia." × "Boa noite." passa com 0,78. Mudar o limiar só para frases curtas troca um erro pelo outro, por isso ele continua igual. Nesses casos, confira também "Palavras idênticas".
+
+## Atualização: controle de exigência removido e semântica mais sensível
+
+Esta seção vale sobre o que estiver diferente acima.
+
+- **Exigência:** o controle foi removido da tela, da API e do código. O limiar agora é fixo.
+- **Ideia geral:** a semântica também compara os textos como um todo, e a nota é o maior valor entre essa visão e a de frases. Isso reconhece reescritas que fundem ou dividem frases.
+- **Modelo:** foi mantido. O modelo de 1 GB testado não trouxe ganho.
+- **Estrutural em textos curtos:** o desconto do acaso agora é proporcional ao tamanho do texto.
+- **Palavras idênticas:** agora conta todas as palavras, mesmo fora de blocos.
+
+| Caso | Estrutural | Semântica |
+|---|---|---|
+| "O céu é azul" × "Azul é o ceu" | 70% | 100% |
+| "o ceu é azul e daniel é chato" × "azul é o ceu e daniel é legal" | 83% | 100% |
+| Exoplaneta: linguagem simples × técnica | 8% | 98% |
+| Médico: linguagem simples × técnica | 10% | 100% |
+| Baleias × exoplaneta | 6% | 0% |
+| Médico × futebol | 20% | 0% |
+| Médico × advogado, frases curtas | 53% | 0% |
+| Redações autorais sobre o mesmo tema | 8% | **100%** |
+
+**Custo desta mudança:** redações autorais sobre o mesmo tema subiram de 40% para 100% na semântica. O modelo mede proximidade de ideias e não distingue paráfrase de dois autores que defendem a mesma coisa. A nota indica que o texto merece revisão, sem provar plágio.
+
+**Outras limitações:** frases com sentido oposto continuam parecendo iguais, e textos muito curtos seguem imprecisos ("Bom dia." × "Boa noite." dá 100%; "Sim." × "Não." dá 46%).
