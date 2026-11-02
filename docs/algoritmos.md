@@ -46,7 +46,7 @@ Conta pares `i < j` com `a[i] > a[j] + tolerância`. A condição difere da comp
 ## Nota
 
 ```
-cobertura = unidades do suspeito encontradas no original / total de unidades do suspeito
+cobertura = unidades do suspeito dentro de blocos / total de unidades do suspeito
 ordem     = 1 − inversões entre blocos / max(C(blocos, 2), unidades em comum − 1)
 nota      = cobertura × (0,5 + 0,5 × ordem)
 ```
@@ -57,10 +57,12 @@ nota      = cobertura × (0,5 + 0,5 × ordem)
 | De 30% a 59% | Moderada |
 | 60% ou mais | Alta |
 
+No modo estrutural, um bloco precisa de ao menos 2 palavras: palavras soltas coincidem em qualquer texto sobre o mesmo tema. Abaixo de 3 palavras em comum, a nota é 0.
+
 As faixas são pontos de partida: ainda não foram calibradas com um conjunto real de textos.
 
 ## Modo semântico
 
 `backend/core/analises/semantica.py`
 
-Cada frase vira um vetor no modelo multilíngue `paraphrase-multilingual-MiniLM-L12-v2`. Duas frases contam como iguais quando a similaridade de cosseno atinge o limiar escolhido na tela. A partir daí, Hirschberg e inversões funcionam exatamente como no modo estrutural.
+Cada frase é normalizada (minúsculas, sem acentos) e vira um vetor no modelo multilíngue `paraphrase-multilingual-MiniLM-L12-v2`. Duas frases contam como iguais quando a similaridade de cosseno atinge o limiar escolhido na tela (70% por padrão). A partir daí, Hirschberg e inversões funcionam exatamente como no modo estrutural.

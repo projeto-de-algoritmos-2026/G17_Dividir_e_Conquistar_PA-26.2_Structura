@@ -15,7 +15,7 @@ Acesse http://localhost:8000. O front agora é servido pelo backend, então não
 **Análise estrutural**
 
 - A nota agora combina cobertura e ordem: `cobertura × (0,5 + 0,5 × ordem)`, medindo quanto do suspeito vem do original (`E1`, `D2`–`D4`).
-- Menos de 3 palavras em comum dá nota 0 (`E2`).
+- Menos de 3 palavras em comum dá nota 0 (`E2`), e palavras soltas, fora de blocos de 2 ou mais, não contam na cobertura.
 - Palavras repetidas são pareadas corretamente (`E3`, resolvido pelo alinhamento mais uma varredura).
 - Stopwords são removidas, e acentos e maiúsculas são normalizados (`E4`, `E5`).
 - Mover um bloco conta como pouca desordem, e trocas entre vizinhas são ignoradas (`E7`, `E8`).
@@ -96,7 +96,7 @@ Todas autorizadas na seção 2 do plano. **`backend/core/algoritmos.py` não foi
 | B = "gato gato gato gato gato" | 100% | 0% |
 | Idênticos com repetição | 80% | 100% |
 | Duas metades trocadas | 46,67% | 96,15% |
-| Texto invertido | 0% | 63,74% (cobertura 100%, ordem 27%) |
+| Texto invertido | 0% | 0% (sem blocos em comum) |
 
 - Hirschberg e inversões significativas bateram com a força bruta em 500 entradas aleatórias cada.
 - Pior caso no limite de 30.000 caracteres, modo estrutural: cerca de 4 segundos.
@@ -105,8 +105,10 @@ Todas autorizadas na seção 2 do plano. **`backend/core/algoritmos.py` não foi
 
 ## Limitações conhecidas
 
-- **As faixas não foram calibradas.** Os cortes de 30% e 60%, o limiar de 75% e o limite de 3 palavras são pontos de partida, pois `Q3` saiu do plano.
-- **Textos do mesmo assunto podem pontuar mais do que deveriam** no modo estrutural, porque palavras soltas em comum contam na cobertura.
+- **As faixas não foram calibradas.** Os cortes de 30% e 60%, o limiar de 70% e os mínimos de palavras são pontos de partida, pois `Q3` saiu do plano.
+- **Redações autorais sobre o mesmo tema ainda pontuam no modo semântico:** 40% no teste, contra 18% no estrutural. Nenhum limiar separa isso totalmente de uma paráfrase.
+- **O modo semântico não entende inversão de sentido:** "João ama Maria" e "Maria ama João" contam como equivalentes. Por isso vale olhar os dois modos juntos.
+- **Palavras em ordem invertida, uma a uma, dão nota 0** no modo estrutural, porque não formam blocos.
 - **Textos muito curtos no modo semântico são punidos com rigor na ordem:** trocar duas frases de um texto de duas frases dá nota 50%, porque a ordem cai a 0%.
 - **A primeira análise semântica baixa o modelo** e precisa de internet; as seguintes funcionam offline.
 - **A seção de referências** só é reconhecida quando uma linha começa com "Referências".
