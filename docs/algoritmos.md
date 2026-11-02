@@ -79,9 +79,10 @@ Sem o desconto, dois textos quaisquer em português já pareceriam bastante simi
 
 ```
 frases    = cobertura × (0,5 + 0,5 × ordem)
-geral     = (similaridade da média dos vetores − 0,30) / (0,70 − 0,30), entre 0 e 1
+s         = similaridade da média dos vetores dos dois textos
+geral     = (s − 0,30) / (0,70 − 0,30), entre 0 e o menor valor entre 1 e s
 nota      = max(frases, geral)
-cobertura = frases do suspeito com equivalente no original / total de frases do suspeito
+cobertura = soma das similaridades das frases equivalentes / total de frases do suspeito
 ordem     = 1 − inversões entre blocos / max(C(blocos, 2), frases em comum − 1)
 ```
 

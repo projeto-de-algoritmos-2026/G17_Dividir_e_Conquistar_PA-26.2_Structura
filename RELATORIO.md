@@ -161,3 +161,20 @@ Esta seção vale sobre o que estiver diferente acima.
 **Custo desta mudança:** redações autorais sobre o mesmo tema subiram de 40% para 100% na semântica. O modelo mede proximidade de ideias e não distingue paráfrase de dois autores que defendem a mesma coisa. A nota indica que o texto merece revisão, sem provar plágio.
 
 **Outras limitações:** frases com sentido oposto continuam parecendo iguais, e textos muito curtos seguem imprecisos ("Bom dia." × "Boa noite." dá 100%; "Sim." × "Não." dá 46%).
+
+## Atualização: frases pesam pela similaridade
+
+Esta seção vale sobre o que estiver diferente acima.
+
+- **Nota semântica:** cada frase conta pela sua similaridade, e não mais como "passou ou não passou". A "Ideia geral" também nunca passa da similaridade medida.
+- **Palavras idênticas:** agora mostra número bruto e porcentagem, como `2 de 4 (50%)`. A contagem ignora palavras comuns.
+
+| Caso | Semântica antes | Semântica agora |
+|---|---|---|
+| "o daniel é salgado..." × "Mesmo o Daniel..." | 100% | 81% |
+| Exoplaneta: simples × técnico | 98% | 69% |
+| Médico: simples × técnico | 100% | 64% |
+| "Eu amo você." × "Eu te amo." | 100% | 60% |
+| Redações autorais sobre o mesmo tema | 100% | 85% |
+| Frases com sentido oposto | 100% | 70% |
+| "Bom dia." × "Boa noite." | 100% | 78% |
