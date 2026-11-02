@@ -13,6 +13,10 @@ PESO_FIXO_ORDEM = 0.85 #reordenar não apaga a cópia: a ordem só tira até 15%
 MAX_PALAVRAS_CITACAO = 40 #além disso, aspas deixam de ser citação curta e viram esconderijo
 MAX_PROPORCAO_CITACOES = 0.25 #citar demais não pode tirar o texto da análise
 INICIO_MINIMO_REFERENCIAS = 0.5 #o título de referências só vale na segunda metade do texto
+ABREVIACOES = {
+    "dr", "dra", "sr", "sra", "srs", "sras", "prof", "profa", "art", "arts", "fig", "figs",
+    "pag", "pags", "vol", "ed", "cap", "av", "tel", "num", "ex", "obs", "ltda", "cia",
+}
 
 INVISIVEIS = "­​-‏‪-‮⁠-⁤⁦-⁯﻿"
 ACENTOS_SOLTOS = "̀-ͯ"
@@ -46,6 +50,10 @@ def normalizar(texto: str) -> str:
     decomposto = unicodedata.normalize("NFKD", texto.lower())
     limpo = "".join(c for c in decomposto if not unicodedata.combining(c) and unicodedata.category(c) != "Cf")
     return limpo if limpo.isascii() else re.sub(r"\w+", _trocar_homoglifos, limpo)
+
+def eh_abreviacao(palavra: str) -> bool:
+    #Ponto de abreviação ou de inicial ("Dr. Silva", "J. Silva") não termina a frase.
+    return normalizar(palavra) in ABREVIACOES or (len(palavra) == 1 and palavra.isupper())
 
 def contar_palavras(texto: str) -> int:
     return sum(1 for _ in RE_PALAVRA.finditer(texto))

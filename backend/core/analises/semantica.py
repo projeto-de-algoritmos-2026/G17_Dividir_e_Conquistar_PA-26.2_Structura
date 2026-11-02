@@ -12,6 +12,7 @@ from backend.core.analises.comum import (
     avisos_citacoes,
     classificar,
     comparar_segmentos,
+    eh_abreviacao,
     normalizar,
     ocultar_citacoes,
     pontuar,
@@ -35,10 +36,6 @@ MIN_FRASES_ORIGINAL = 3 #com menos, "todo o original foi usado" acontece por aca
 MIN_PALAVRAS_LITERAL = 5 #frases menores coincidem sem ser cópia
 MAX_PALAVRAS_FRASE = 60 #o modelo corta frases longas e ignoraria o resto delas
 MAX_FRASES = 1000 #a comparação é quadrática no número de frases
-ABREVIACOES = {
-    "dr", "dra", "sr", "sra", "srs", "sras", "prof", "profa", "art", "arts", "fig", "figs",
-    "pag", "pags", "vol", "ed", "cap", "av", "tel", "num", "ex", "obs", "ltda", "cia",
-}
 FIM_DE_FRASE = re.compile(r"[.!?]+(?=[\s\"'”»)\]]|$)|\n[ \t]*\n")
 
 class ModeloIndisponivel(Exception):
@@ -53,14 +50,10 @@ def carregar_modelo() -> TextEmbedding:
         raise ModeloIndisponivel("Não foi possível carregar o modelo de linguagem. Na primeira análise semântica é preciso ter internet.") from falha
 
 def termina_frase(texto: str, achado: re.Match) -> bool:
-    #Ponto de abreviação ou de inicial ("Dr. Silva", "J. Silva") não termina a frase.
     if achado.group() != ".":
         return True
     anterior = re.search(r"\w+$", texto[max(0, achado.start() - 12):achado.start()])
-    if not anterior:
-        return True
-    palavra = anterior.group()
-    return normalizar(palavra) not in ABREVIACOES and not (len(palavra) == 1 and palavra.isupper())
+    return not anterior or not eh_abreviacao(anterior.group())
 
 def dividir_frase_longa(texto: str, inicio: int, fim: int) -> list[Segmento]:
     palavras = [(p.start(), p.end()) for p in RE_PALAVRA.finditer(texto, inicio, fim)]
