@@ -84,9 +84,10 @@ function desenharTexto(elemento, texto, faixas) {
     }
 }
 
-function desenharPares(pares) {
+function desenharPares(pares, titulo) {
     const lista = document.getElementById('resPares');
     lista.replaceChildren();
+    document.getElementById('tituloPares').textContent = titulo;
     document.getElementById('blocoPares').classList.toggle('escondido', pares.length === 0);
 
     for (const { texto_a, texto_b, nota } of pares) {
@@ -121,6 +122,6 @@ export function mostrarResultado(dados, textoA, textoB) {
     desenharTexto(document.getElementById('marcadoA'), textoA, faixasA);
     desenharTexto(document.getElementById('marcadoB'), textoB, faixasB);
 
-    desenharPares(dados.pares);
+    desenharPares(dados.pares, dados.titulo_pares);
     painel.classList.remove('escondido');
 }

@@ -65,7 +65,7 @@
             <p id="resLegenda" class="contador"></p>
 
             <div id="blocoPares" class="escondido">
-                <h2>Frases equivalentes</h2>
+                <h2 id="tituloPares"></h2>
                 <div id="resPares"></div>
             </div>
         </section>
@@ -73,7 +73,7 @@
         <details class="como-funciona">
             <summary>Como funciona</summary>
             <p>Cada modo responde a uma pergunta diferente.</p>
-            <p><strong>Estrutural: os textos são construídos do mesmo jeito?</strong> Cada palavra vira uma categoria, como artigo, preposição ou tamanho, e o assunto deixa de importar. O algoritmo de Hirschberg divide o texto ao meio para achar a maior sequência de formatos em comum, e a nota desconta o que coincidiria por acaso. Uma medida à parte mostra as palavras idênticas.</p>
+            <p><strong>Estrutural: os textos são construídos do mesmo jeito?</strong> Cada palavra vira uma classe gramatical, como substantivo, verbo ou preposição, e o assunto deixa de importar. O algoritmo de Hirschberg alinha cada frase com a frase de construção mais parecida do outro texto, em qualquer posição, e um merge sort modificado conta quanto a ordem das frases mudou. O texto inteiro também é comparado, descontando o que coincidiria por acaso, para reconhecer frases fundidas ou divididas. Uma medida à parte mostra as palavras idênticas.</p>
             <p><strong>Semântica: as ideias vêm do original?</strong> Cada frase vira um vetor de significado. Hirschberg alinha as frases equivalentes, e um merge sort modificado conta quanto a ordem das ideias mudou. Cada frase pesa conforme sua similaridade, e frases vizinhas também são comparadas juntas, para reconhecer reescritas que fundem ou dividem frases. A proximidade geral entre os textos só reforça a nota: sozinha, ela não basta, porque tratar do mesmo tema não é plágio.</p>
             <p>Citações curtas entre aspas e a seção de referências no fim do texto ficam fora da análise, e a tela informa quanto foi ignorado. O resultado orienta uma revisão humana e não prova plágio.</p>
         </details>
