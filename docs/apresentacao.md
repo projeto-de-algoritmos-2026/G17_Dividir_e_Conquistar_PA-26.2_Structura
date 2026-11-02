@@ -9,10 +9,11 @@
    - Em "Frases equivalentes", mostre a frase reescrita que nenhuma comparação de palavras reconheceria.
    - Mostre "Ideia geral": ela reconhece reescritas em que uma frase não corresponde a outra.
 4. **Reordenação.** Troque de lugar as frases do texto suspeito e analise de novo.
-   - **Counting Inversions:** a cobertura não muda, mas a ordem cai.
+   - **Counting Inversions:** a métrica "Ordem" cai, mas a suspeita continua alta: as ideias são as mesmas.
+   - No modo estrutural, a nota cai, enquanto "Palavras idênticas" mostra que as palavras continuam lá.
 5. **Contraste.** Compare uma paráfrase nos dois modos: a suspeita de plágio é alta e a similaridade estrutural é baixa.
 6. **Citações.** Coloque um trecho entre aspas e mostre que ele sai da análise.
-7. **Complexidade.** Mostre a tabela de `docs/algoritmos.md`.
+7. **Complexidade.** Mostre a tabela de `docs/algoritmos.md` e os resultados de `docs/testes.md`.
 8. **Limites.** O modelo não entende inversão de sentido, e a nota orienta uma revisão humana, sem provar plágio.
 
 **Antes de apresentar:** rode uma análise semântica uma vez, para que o modelo já esteja baixado.

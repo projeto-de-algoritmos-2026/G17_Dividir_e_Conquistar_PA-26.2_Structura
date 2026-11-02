@@ -16,7 +16,7 @@ O **Detector de Similaridade** é uma ferramenta web que aponta indícios de pl�
 - **Estrutural:** mede se os textos são construídos do mesmo jeito, sem olhar o assunto. O resultado é uma similaridade.
 - **Semântica:** procura ideias do original no texto suspeito, mesmo reescritas. O resultado é uma suspeita de plágio.
 
-Os dois modos usam dividir e conquistar: **Hirschberg** para alinhar as sequências e **Counting Inversions (Merge Sort modificado)** para medir o quanto a ordem mudou. Detalhes em [docs/algoritmos.md](docs/algoritmos.md).
+Os dois modos usam dividir e conquistar: **Hirschberg** para alinhar as sequências e **Counting Inversions (Merge Sort modificado)** para medir o quanto a ordem mudou. Detalhes em [docs/algoritmos.md](docs/algoritmos.md), e resultados em [docs/testes.md](docs/testes.md).
 
 ## Screenshots
 

@@ -100,4 +100,4 @@ As faixas dos dois modos são pontos de partida: ainda não foram calibradas com
 
 `backend/core/analises/semantica.py`
 
-Cada frase é normalizada (minúsculas, sem acentos) e vira um vetor no modelo multilíngue `paraphrase-multilingual-MiniLM-L12-v2`. Duas frases contam como iguais quando a similaridade de cosseno atinge 0,55. A partir daí, Hirschberg alinha as frases e as inversões medem quanto a ordem das ideias mudou.
+Cada frase é normalizada (minúsculas, sem acentos) e vira um vetor no modelo multilíngue `paraphrase-multilingual-MiniLM-L12-v2`. A similaridade de cada par de frases é reforçada pelas palavras de conteúdo em comum: `s + (1 − s) × 0,65 × dice`. O reforço é anulado quando só uma das frases tem negação. Duas frases contam como iguais quando esse valor atinge 0,55. A partir daí, Hirschberg alinha as frases e as inversões medem quanto a ordem das ideias mudou.
