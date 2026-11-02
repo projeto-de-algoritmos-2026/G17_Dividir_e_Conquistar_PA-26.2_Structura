@@ -16,7 +16,7 @@ O **Detector de Similaridade** é uma ferramenta web que aponta indícios de pl�
 - **Estrutural:** mede se os textos são construídos do mesmo jeito, sem olhar o assunto. O resultado é uma similaridade.
 - **Semântica:** procura ideias do original no texto suspeito, mesmo reescritas. O resultado é uma suspeita de plágio.
 
-Os dois modos usam dividir e conquistar: **Hirschberg** para alinhar as sequências e **Counting Inversions (Merge Sort modificado)** para medir o quanto a ordem mudou. Detalhes em [docs/algoritmos.md](docs/algoritmos.md), e resultados em [docs/testes.md](docs/testes.md).
+Os dois modos usam dividir e conquistar: **Hirschberg** para alinhar as sequências e **Counting Inversions (Merge Sort modificado)** para medir o quanto a ordem mudou, o que entra na nota do modo semântico e aparece como métrica no estrutural. Detalhes em [docs/algoritmos.md](docs/algoritmos.md), e resultados em [docs/testes.md](docs/testes.md).
 
 ## Screenshots
 
@@ -26,7 +26,7 @@ Linguagem: Python e JavaScript
 Framework: FastAPI
 
 <font size = "5">**Pré-requisitos:** </font>
-- Python 3.x instalado
+- Python 3.12 ou superior instalado
 - Git instalado
 
 <font size = "5"> **Comandos necessários:**</font>
@@ -62,10 +62,18 @@ uvicorn backend.main:app --reload
 
 Após o servidor iniciar, acesse http://localhost:8000 no navegador.
 
-A primeira análise semântica baixa o modelo de linguagem e, por isso, precisa de internet e demora mais. As seguintes funcionam offline.
+A primeira análise semântica baixa o modelo de linguagem para `.cache/modelos` e, por isso, precisa de internet e demora mais. As seguintes funcionam offline.
+
+## Testes
+```bash
+pip install -r backend/requirements-dev.txt
+python -m pytest
+```
+
+Os resultados de cada caso e o que cada arquivo de teste verifica estão em [docs/testes.md](docs/testes.md).
 
 ## Outros
-**Análise Algorítmica:** O núcleo matemático do projeto evita a contagem de força bruta $O(N^2)$ ao implementar o algoritmo de Merge Sort para a contagem de inversões. Isso reduz a contagem de inversões para $O(N \log N)$. O alinhamento de Hirschberg custa $O(NM)$ em tempo e $O(N+M)$ em espaço, por isso cada texto é limitado a 20.000 caracteres.
+**Análise Algorítmica:** O núcleo matemático do projeto evita a contagem de força bruta $O(N^2)$ ao implementar o algoritmo de Merge Sort para a contagem de inversões. Isso reduz a contagem de inversões para $O(N \log N)$. O alinhamento de Hirschberg custa $O(NM)$ em tempo e $O(N+M)$ em espaço, por isso cada texto é limitado a 20.000 caracteres, 6.000 tokens no modo estrutural e 1.000 frases no semântico.
 
 **Arquitetura e Escalabilidade:**
 Em um detector de plágio em escala real, a integração de um Banco de Dados não visa criar "inteligência" (no sentido de Machine Learning), mas atuar como um Repositório de Base (Corpus) e um Otimizador de Performance.
