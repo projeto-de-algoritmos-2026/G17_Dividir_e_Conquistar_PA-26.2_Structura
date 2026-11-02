@@ -6,7 +6,7 @@ from backend.api.routes import router as api_router
 
 PASTA_FRONTEND = Path(__file__).parent.parent / "frontend"
 
-app = FastAPI(title="Detector de Similaridade", version="1.0")
+app = FastAPI(title="Structura", version="1.0")
 
 app.include_router(api_router, prefix="/api")
 

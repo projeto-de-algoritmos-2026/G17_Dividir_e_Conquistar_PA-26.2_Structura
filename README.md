@@ -1,4 +1,4 @@
-<h1><font size="6"><b>Detector de Similaridade</b></font><br></h1>
+<h1><font size="6"><b>Structura</b></font><br></h1>
 <h3><b>Número da Lista:</b> 17<br></h3>
 <h3><i>Conteúdo da disciplina:</i> Dividir e Conquistar<br></h3>
 <h3>Alunos</h3>
@@ -11,7 +11,7 @@
 ---
 
 ## Sobre
-O **Detector de Similaridade** é uma ferramenta web que aponta indícios de plágio entre dois textos, em dois modos:
+O **Structura** é uma ferramenta web que atua como **Detector de Similaridade** apontando indícios de plágio entre dois textos, em dois modos:
 
 - **Estrutural:** mede se os textos são construídos do mesmo jeito, sem olhar o assunto. O resultado é uma similaridade.
 - **Semântica:** procura ideias do original no texto suspeito, mesmo reescritas. O resultado é uma suspeita de plágio.
