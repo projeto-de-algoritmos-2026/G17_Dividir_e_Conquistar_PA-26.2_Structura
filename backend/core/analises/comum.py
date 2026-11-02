@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from dataclasses import dataclass
 
 from backend.core.algoritmos import ContadorInversoes
@@ -13,6 +14,10 @@ class Segmento:
     texto: str
     inicio: int
     fim: int
+
+def normalizar(texto: str) -> str:
+    sem_acento = unicodedata.normalize("NFKD", texto.lower())
+    return "".join(c for c in sem_acento if not unicodedata.combining(c))
 
 def ocultar_citacoes(texto: str) -> str:
     #Troca por espaços, em vez de remover, para preservar as posições usadas no destaque.
@@ -72,13 +77,16 @@ def explicar(cobertura: float, ordem: float, unidade: str) -> str:
         complemento = "em ordem bastante diferente"
     return f"{cobertura:.0%} das {unidade} do texto suspeito aparecem no original, {complemento}."
 
-def comparar_segmentos(seg_a: list[Segmento], seg_b: list[Segmento], iguais, unidade: str, min_bloco: int, tolerancia: int, descrever_par=None) -> dict:
+def comparar_segmentos(seg_a: list[Segmento], seg_b: list[Segmento], iguais, unidade: str, min_pares: int, min_bloco: int, tolerancia: int, descrever_par=None) -> dict:
     #Pipeline comum: cada modo só define como segmentar e o que conta como igual.
     pares = parear(len(seg_a), len(seg_b), iguais)
-    if len(pares) < min_bloco or not seg_b:
+    if len(pares) < min_pares:
         pares = []
 
-    blocos = agrupar_em_blocos(pares)
+    #Palavras soltas não contam: coincidem em qualquer texto sobre o mesmo tema.
+    blocos = [bloco for bloco in agrupar_em_blocos(pares) if len(bloco) >= min_bloco]
+    pares = [par for bloco in blocos for par in bloco]
+
     cobertura = len(pares) / len(seg_b) if seg_b else 0.0
     ordem = calcular_ordem(blocos, len(pares), tolerancia) if pares else 0.0
     nota = cobertura * (0.5 + 0.5 * ordem)
@@ -93,7 +101,7 @@ def comparar_segmentos(seg_a: list[Segmento], seg_b: list[Segmento], iguais, uni
             "inicio_b": seg_b[bloco[0][1]].inicio,
             "fim_b": seg_b[bloco[-1][1]].fim,
         }
-        for bloco in blocos if len(bloco) >= min_bloco
+        for bloco in blocos
     ]
 
     return {

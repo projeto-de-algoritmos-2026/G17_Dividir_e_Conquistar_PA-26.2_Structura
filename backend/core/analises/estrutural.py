@@ -1,9 +1,9 @@
 import re
-import unicodedata
 
-from backend.core.analises.comum import Segmento, comparar_segmentos, ocultar_citacoes
+from backend.core.analises.comum import Segmento, comparar_segmentos, normalizar, ocultar_citacoes
 
-MIN_BLOCO = 3
+MIN_PARES = 3
+MIN_BLOCO = 2
 TOLERANCIA = 2 #trocas entre palavras vizinhas não contam como desordem
 
 STOPWORDS = set("""
@@ -12,10 +12,6 @@ eu foi for ha isso isto ja la lhe mais mas me mesmo meu minha muito na nas nao n
 nossa nosso num numa o os ou para pela pelas pelo pelos por qual quando que quem se sem ser
 seu seus sua suas sao tambem te tem ter um uma uns umas voce
 """.split())
-
-def normalizar(palavra: str) -> str:
-    sem_acento = unicodedata.normalize("NFKD", palavra.lower())
-    return "".join(c for c in sem_acento if not unicodedata.combining(c))
 
 def extrair_palavras(texto: str) -> list[Segmento]:
     palavras = []
@@ -29,4 +25,4 @@ def analisar_estrutura(texto_a: str, texto_b: str, limiar: float) -> dict:
     palavras_a = extrair_palavras(texto_a)
     palavras_b = extrair_palavras(texto_b)
     iguais = lambda i, j: palavras_a[i].texto == palavras_b[j].texto
-    return comparar_segmentos(palavras_a, palavras_b, iguais, "palavras", MIN_BLOCO, TOLERANCIA)
+    return comparar_segmentos(palavras_a, palavras_b, iguais, "palavras", MIN_PARES, MIN_BLOCO, TOLERANCIA)
