@@ -47,9 +47,9 @@ def test_posicoes_apontam_para_o_texto_original():
 
 @pytest.mark.parametrize("token,categoria", [
     (".", "."), (",", ","), ("?", "?"), ("123", "NUMERO"), ("de", "PREPOSICAO"), ("não", "NEGACAO"),
-    ("o", "ARTIGO"), ("porque", "CONJUNCAO"), ("você", "PRONOME"), ("sol", "MUITO_CURTA"), ("mundo", "CURTA"),
-    ("janelas", "MEDIA"), ("biblioteca", "LONGA"), ("extraordinariamente", "MUITO_LONGA"),
-    ("_x", "MUITO_CURTA"), ("​de", "PREPOSICAO"), ("d​e", "PREPOSICAO"),
+    ("o", "ARTIGO"), ("porque", "CONJUNCAO"), ("você", "PRONOME"), ("sol", "SUBSTANTIVO"), ("mundo", "SUBSTANTIVO"),
+    ("janelas", "SUBSTANTIVO"), ("biblioteca", "SUBSTANTIVO"), ("extraordinariamente", "ADVERBIO"),
+    ("_x", "SUBSTANTIVO"), ("​de", "PREPOSICAO"), ("d​e", "PREPOSICAO"),
 ])
 def test_classificar_token(token, categoria):
     assert ProcessadorEstruturalLeve.classificar_token(token) == categoria

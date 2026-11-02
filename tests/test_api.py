@@ -79,5 +79,5 @@ def test_modelo_indisponivel_responde_503(cliente, monkeypatch):
 @pytest.mark.parametrize("modo", ["estrutural", "semantica"])
 def test_formato_da_resposta(cliente, modo):
     dados = comparar(cliente, "O rato roeu a roupa.", "O rato roeu a roupa.", modo).json()
-    assert set(dados) == {"modo", "nota", "faixa", "titulo", "explicacao", "metricas", "legenda", "trechos", "pares", "avisos"}
+    assert set(dados) == {"modo", "nota", "faixa", "titulo", "explicacao", "metricas", "legenda", "trechos", "titulo_pares", "pares", "avisos"}
     assert dados["modo"] == modo

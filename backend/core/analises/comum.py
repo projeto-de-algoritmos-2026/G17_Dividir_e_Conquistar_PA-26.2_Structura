@@ -106,6 +106,7 @@ def sem_conteudo(titulo_texto: str = "Sem conteúdo para analisar") -> dict:
         "metricas": [],
         "legenda": "",
         "trechos": [],
+        "titulo_pares": "",
         "pares": [],
         "avisos": [],
     }

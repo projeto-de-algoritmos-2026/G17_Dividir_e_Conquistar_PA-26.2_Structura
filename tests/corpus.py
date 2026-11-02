@@ -157,6 +157,106 @@ TEXTO_LONGO_NOVO = " ".join(ENCHIMENTO + [
 ])
 SEM_RELACAO_LONGO = " ".join([BALEIAS, EXOPLANETA_SIMPLES, FUTEBOL])
 
+#Pares escritos para a análise estrutural: mesma sintaxe com outro assunto, e sintaxes diferentes.
+MOLDE_POLICIA = (
+    "A polícia prendeu o suspeito na madrugada de sexta. "
+    "Os agentes apreenderam várias armas no galpão abandonado. "
+    "O delegado informou que a investigação continua em sigilo."
+)
+MOLDE_ESPORTE = (
+    "A seleção venceu o campeonato na tarde de domingo. "
+    "Os jogadores conquistaram muitas medalhas no ginásio lotado. "
+    "O treinador declarou que a preparação termina em março."
+)
+MOLDE_JURIDICO = (
+    "O juiz determinou a prisão do réu após a audiência. "
+    "O advogado apresentou uma defesa extensa perante o tribunal. "
+    "A sentença foi publicada no diário oficial da união."
+)
+MOLDE_ESCOLA = (
+    "A diretora autorizou a saída do aluno após a reunião. "
+    "O professor preparou uma prova difícil para a turma. "
+    "A nota foi divulgada no mural principal da escola."
+)
+MOLDE_CIENCIA = (
+    "Os resultados indicam que a temperatura afeta o crescimento das plantas. "
+    "Estudos recentes mostram que a poluição reduz a qualidade do solo. "
+    "Novas pesquisas devem confirmar essa relação nos próximos anos."
+)
+MOLDE_ECONOMIA = (
+    "Os dados revelam que a renda influencia o desempenho dos alunos. "
+    "Análises recentes apontam que a inflação diminui o poder de compra. "
+    "Novos relatórios devem avaliar esse impacto nos próximos meses."
+)
+MOLDE_PALAVRAS_CURTAS = (
+    "O rei viu um rio perto de casa. "
+    "A mãe deu um pão ao seu filho. "
+    "O sol nasceu cedo sobre o mar."
+)
+MOLDE_PALAVRAS_LONGAS = (
+    "O imperador contemplou um desfiladeiro perto de Constantinopla. "
+    "A governanta ofereceu um banquete ao seu excelentíssimo. "
+    "O relâmpago atravessou silenciosamente sobre o arquipélago."
+)
+MOLDE_NARRATIVA_1 = (
+    "Eu acordei cedo e preparei o café da manhã. "
+    "Depois saí de casa e peguei o ônibus da escola. "
+    "Quando cheguei, encontrei meus amigos no pátio."
+)
+MOLDE_NARRATIVA_2 = (
+    "Ela chegou tarde e terminou o relatório da semana. "
+    "Depois abriu a janela e regou as plantas da varanda. "
+    "Quando saiu, avisou seus colegas no corredor."
+)
+MOLDE_PERGUNTAS_1 = (
+    "Por que o governo aumentou os impostos neste ano? "
+    "Quem vai pagar a conta da reforma? "
+    "Quando a população receberá os serviços prometidos?"
+)
+MOLDE_PERGUNTAS_2 = (
+    "Por que a empresa demitiu os funcionários neste mês? "
+    "Quem vai assumir a direção da fábrica? "
+    "Quando os clientes receberão os produtos encomendados?"
+)
+ESTILO_TELEGRAFICO = (
+    "Chuva forte. Ruas alagadas. Trânsito parado. Escolas fechadas. "
+    "Bombeiros nas ruas. Moradores assustados. Prefeitura em alerta. Previsão ruim."
+)
+ESTILO_SUBORDINADO = (
+    "Embora muitos especialistas tenham afirmado que a medida seria eficaz, "
+    "aqueles que acompanharam de perto a sua implementação perceberam que, "
+    "sem o apoio das comunidades que dela dependiam, nenhum dos objetivos "
+    "que haviam sido traçados poderia ser alcançado no prazo que fora estabelecido."
+)
+ESTILO_RECEITA = (
+    "Misture a farinha com o açúcar. Adicione os ovos e bata bem. "
+    "Despeje a massa na forma untada. Asse por quarenta minutos em forno médio."
+)
+ESTILO_DIALOGO = (
+    "Oi, tudo bem? Faz tempo que não te vejo! Pois é, andei viajando. "
+    "Sério? Pra onde? Fui pra Bahia com a família. Que legal, adorei saber!"
+)
+ESTILO_ACADEMICO = (
+    "A presente investigação analisa, sob uma perspectiva interdisciplinar, os mecanismos "
+    "institucionais responsáveis pela reprodução das desigualdades educacionais, considerando "
+    "as transformações ocorridas nas últimas décadas e suas implicações para as políticas públicas."
+)
+ESTILO_LISTA = "Lápis, caneta, borracha, régua, caderno, mochila, estojo, tesoura, cola, compasso, transferidor, apontador."
+ATIVA = (
+    "O governo aprovou a nova lei ontem. "
+    "A polícia prendeu o principal suspeito. "
+    "O prefeito inaugurou a ponte da cidade."
+)
+PASSIVA = (
+    "A nova lei foi aprovada ontem pelo governo. "
+    "O principal suspeito foi preso pela polícia. "
+    "A ponte da cidade foi inaugurada pelo prefeito."
+)
+_POLICIA = [f.strip() + "." for f in MOLDE_POLICIA.split(".") if f.strip()]
+_ESPORTE = [f.strip() + "." for f in MOLDE_ESPORTE.split(".") if f.strip()]
+_JURIDICO = [f.strip() + "." for f in MOLDE_JURIDICO.split(".") if f.strip()]
+_ESCOLA = [f.strip() + "." for f in MOLDE_ESCOLA.split(".") if f.strip()]
+
 def _trocar_homoglifos(texto: str) -> str:
     return texto.replace("a", "а").replace("o", "о").replace("e", "е")
 
@@ -193,6 +293,7 @@ GRUPOS = {
     "sentido": "Sentido diferente",
     "sem_relacao": "Sem relação",
     "mesmo_tema": "Mesmo tema ou mesma construção",
+    "construcao": "Construção igual ou diferente",
     "extremos": "Citações e casos extremos",
     "burlas": "Tentativas de burla",
 }
@@ -201,15 +302,15 @@ CASOS = [
     #Cópias
     Caso("copias", "Cópia exata", LEITURA, LEITURA, (1, 1), (1, 1)),
     Caso("copias", "Cópia em maiúsculas e sem acentos", LEITURA, "A LEITURA DESENVOLVE O PENSAMENTO CRITICO DOS ESTUDANTES PORQUE APRESENTA PONTOS DE VISTA DIFERENTES. BIBLIOTECAS PUBLICAS AMPLIAM O ACESSO AOS LIVROS NAS COMUNIDADES MAIS POBRES. SEM POLITICAS DE INCENTIVO, MUITOS JOVENS TERMINAM A ESCOLA SEM O HABITO DE LER.", (0.95, 1), (0.95, 1)),
-    Caso("copias", "Frases reordenadas", LEITURA, f"{LEITURA_F3} {LEITURA_F1} {LEITURA_F2}", (0, 0.6), (0.85, 1)),
-    Caso("copias", "Metades trocadas", LEITURA, f"{LEITURA_F2} {LEITURA_F3} {LEITURA_F1}", (0, 0.6), (0.85, 1)),
-    Caso("copias", "Uma frase copiada, duas novas", LEITURA, f"{LEITURA_F1} {ENCHIMENTO[0]} {ENCHIMENTO[1]}", (0, 0.6), (0.25, 0.55)),
-    Caso("copias", "Texto longo com uma frase copiada", LEITURA, f"{TEXTO_LONGO_NOVO} {LEITURA_F2}", (0, 0.4), (0, 0.3)),
+    Caso("copias", "Frases reordenadas", LEITURA, f"{LEITURA_F3} {LEITURA_F1} {LEITURA_F2}", (0.85, 1), (0.85, 1)),
+    Caso("copias", "Metades trocadas", LEITURA, f"{LEITURA_F2} {LEITURA_F3} {LEITURA_F1}", (0.85, 1), (0.85, 1)),
+    Caso("copias", "Uma frase copiada, duas novas", LEITURA, f"{LEITURA_F1} {ENCHIMENTO[0]} {ENCHIMENTO[1]}", (0.25, 0.6), (0.25, 0.55)),
+    Caso("copias", "Texto longo com uma frase copiada", LEITURA, f"{TEXTO_LONGO_NOVO} {LEITURA_F2}", (0, 0.3), (0, 0.3)),
     #Reescritas
     Caso("reescritas", "Paráfrase completa", LEITURA, LEITURA_PARAFRASE, (0, 0.6), (0.6, 1)),
     Caso("reescritas", "Paráfrase de outro tema", CLIMA, CLIMA_PARAFRASE, (0, 0.6), (0.6, 1)),
     Caso("reescritas", "Paráfrase reordenada", LEITURA, " ".join(reversed([f.strip() + "." for f in LEITURA_PARAFRASE.split(".") if f.strip()])), (0, 0.6), (0.55, 1)),
-    Caso("reescritas", "Metade copiada, metade parafraseada", LEITURA, LEITURA_MISTA, (0.2, 1), (0.7, 1)),
+    Caso("reescritas", "Metade copiada, metade parafraseada", LEITURA, LEITURA_MISTA, (0.5, 1), (0.7, 1)),
     Caso("reescritas", "Frases fundidas", CLIMA, CLIMA_FUNDIDO, (0, 0.8), (0.6, 1)),
     Caso("reescritas", "Frases divididas", CLIMA, CLIMA_DIVIDIDO, (0, 0.8), (0.6, 1)),
     Caso("reescritas", "Exoplaneta: simples × técnico", EXOPLANETA_SIMPLES, EXOPLANETA_TECNICO, (0, 0.6), (0.2, 1)),
@@ -234,46 +335,62 @@ CASOS = [
     Caso("sentido", '"Bom dia." × "Boa noite."', "Bom dia.", "Boa noite."),
     Caso("sentido", '"Sim." × "Não."', "Sim.", "Não."),
     #Sem relação
-    Caso("sem_relacao", "Baleias × exoplaneta", BALEIAS, EXOPLANETA_TECNICO, (0, 0.25), (0, 0.15)),
-    Caso("sem_relacao", "Médico × futebol", MEDICO_SIMPLES, FUTEBOL, (0, 0.25), (0, 0.15)),
+    Caso("sem_relacao", "Baleias × exoplaneta", BALEIAS, EXOPLANETA_TECNICO, (0, 0.3), (0, 0.15)),
+    Caso("sem_relacao", "Médico × futebol", MEDICO_SIMPLES, FUTEBOL, (0, 0.3), (0, 0.15)),
     Caso("sem_relacao", "Espaço × inflação", ESPACO, INFLACAO, (0, 0.3), (0, 0.15)),
-    Caso("sem_relacao", "Revolução industrial × baleias", REVOLUCAO, BALEIAS, (0, 0.25), (0, 0.15)),
-    Caso("sem_relacao", "Poema × notícia", POEMA, NOTICIA, (0, 0.25), (0, 0.15)),
-    Caso("sem_relacao", "Lista de compras × notícia", COMPRAS, NOTICIA, (0, 0.25), (0, 0.15)),
-    Caso("sem_relacao", "Código × texto", CODIGO, LEITURA, (0, 0.25), (0, 0.15)),
-    Caso("sem_relacao", "Clima × educação", CLIMA, EDUCACAO_1, (0, 0.25), (0, 0.15)),
-    Caso("sem_relacao", "Feijoada × futebol", FEIJOADA, FUTEBOL, (0, 0.25), (0, 0.15)),
-    Caso("sem_relacao", "Redes sociais × clima", REDES_1, CLIMA, (0, 0.25), (0, 0.15)),
+    Caso("sem_relacao", "Revolução industrial × baleias", REVOLUCAO, BALEIAS, (0, 0.3), (0, 0.15)),
+    Caso("sem_relacao", "Poema × notícia", POEMA, NOTICIA, (0, 0.35), (0, 0.15)), #menos de 20 tokens: a faixa é inconclusiva,
+    Caso("sem_relacao", "Lista de compras × notícia", COMPRAS, NOTICIA, (0, 0.3), (0, 0.15)),
+    Caso("sem_relacao", "Código × texto", CODIGO, LEITURA, (0, 0.3), (0, 0.15)),
+    Caso("sem_relacao", "Clima × educação", CLIMA, EDUCACAO_1, (0, 0.3), (0, 0.15)),
+    Caso("sem_relacao", "Feijoada × futebol", FEIJOADA, FUTEBOL, (0, 0.3), (0, 0.15)),
+    Caso("sem_relacao", "Redes sociais × clima", REDES_1, CLIMA, (0, 0.3), (0, 0.15)),
     #Mesmo tema ou mesma construção
-    Caso("mesmo_tema", "Mesma construção, outro tema", CONSTRUCAO_A, CONSTRUCAO_B, (0.45, 1), (0, 0.3)),
+    Caso("mesmo_tema", "Mesma construção, outro tema", CONSTRUCAO_A, CONSTRUCAO_B, (0.9, 1), (0, 0.3)),
     Caso("mesmo_tema", '"O gato dorme no sofá." × "O cão late na rua."', "O gato dorme no sofá.", "O cão late na rua.", None, (0, 0.3)),
     Caso("mesmo_tema", "Médico × advogado, frases curtas", MEDICO_TECNICO, ADVOGADO, (0.2, 1), (0, 0.3)),
-    Caso("mesmo_tema", "Clima: autores 1 e 2", CLIMA, CLIMA_AUTOR_2, (0, 0.45), (0, 0.3)),
-    Caso("mesmo_tema", "Clima: autores 1 e 3", CLIMA, CLIMA_AUTOR_3, (0, 0.45), (0, 0.3)),
-    Caso("mesmo_tema", "Clima: autores 2 e 3", CLIMA_AUTOR_2, CLIMA_AUTOR_3, (0, 0.45), (0, 0.3)),
-    Caso("mesmo_tema", "Educação: autores 1 e 2", EDUCACAO_1, EDUCACAO_2, (0, 0.45), (0, 0.3)),
-    Caso("mesmo_tema", "Educação: autores 1 e 3", EDUCACAO_1, EDUCACAO_3, (0, 0.45), (0, 0.45)),
-    Caso("mesmo_tema", "Educação: autores 2 e 3", EDUCACAO_2, EDUCACAO_3, (0, 0.45), (0, 0.3)),
-    Caso("mesmo_tema", "Redes sociais: autores 1 e 2", REDES_1, REDES_2, (0, 0.45), (0, 0.3)),
-    Caso("mesmo_tema", "Mesmo molde de frases, outro tema", CONTEXTO_A, CONTEXTO_B, (0.45, 1)),
+    Caso("mesmo_tema", "Clima: autores 1 e 2", CLIMA, CLIMA_AUTOR_2, (0, 0.3), (0, 0.3)),
+    Caso("mesmo_tema", "Clima: autores 1 e 3", CLIMA, CLIMA_AUTOR_3, (0, 0.3), (0, 0.3)),
+    Caso("mesmo_tema", "Clima: autores 2 e 3", CLIMA_AUTOR_2, CLIMA_AUTOR_3, (0, 0.3), (0, 0.3)),
+    Caso("mesmo_tema", "Educação: autores 1 e 2", EDUCACAO_1, EDUCACAO_2, (0, 0.3), (0, 0.3)),
+    Caso("mesmo_tema", "Educação: autores 1 e 3", EDUCACAO_1, EDUCACAO_3, (0, 0.3), (0, 0.45)),
+    Caso("mesmo_tema", "Educação: autores 2 e 3", EDUCACAO_2, EDUCACAO_3, (0, 0.3), (0, 0.3)),
+    Caso("mesmo_tema", "Redes sociais: autores 1 e 2", REDES_1, REDES_2, (0, 0.3), (0, 0.3)),
+    Caso("mesmo_tema", "Mesmo molde de frases, outro tema", CONTEXTO_A, CONTEXTO_B, (0.8, 1)),
+    #Construção igual ou diferente
+    Caso("construcao", "Notícia policial × esportiva", MOLDE_POLICIA, MOLDE_ESPORTE, (0.75, 1)),
+    Caso("construcao", "Jurídico × escolar", MOLDE_JURIDICO, MOLDE_ESCOLA, (0.75, 1)),
+    Caso("construcao", "Ciência × economia", MOLDE_CIENCIA, MOLDE_ECONOMIA, (0.75, 1)),
+    Caso("construcao", "Palavras curtas × palavras longas", MOLDE_PALAVRAS_CURTAS, MOLDE_PALAVRAS_LONGAS, (0.6, 1)),
+    Caso("construcao", "Narrativas em pessoas diferentes", MOLDE_NARRATIVA_1, MOLDE_NARRATIVA_2, (0.6, 1)),
+    Caso("construcao", "Perguntas com o mesmo molde", MOLDE_PERGUNTAS_1, MOLDE_PERGUNTAS_2, (0.75, 1)),
+    Caso("construcao", "Molde igual, frases fora de ordem", MOLDE_POLICIA, " ".join(reversed(_ESPORTE)), (0.6, 1)),
+    Caso("construcao", "Moldes intercalados de dois textos", " ".join(_POLICIA + _JURIDICO), " ".join(_ESCOLA + _ESPORTE), (0.6, 1)),
+    Caso("construcao", "Metade do molde, metade própria", MOLDE_POLICIA, " ".join(_ESPORTE[:1] + _ESCOLA[1:]), (0.3, 0.8)),
+    Caso("construcao", "Telegráfico × subordinado", ESTILO_TELEGRAFICO, ESTILO_SUBORDINADO, (0, 0.3)),
+    Caso("construcao", "Receita × texto acadêmico", ESTILO_RECEITA, ESTILO_ACADEMICO, (0, 0.3)),
+    Caso("construcao", "Diálogo × texto acadêmico", ESTILO_DIALOGO, ESTILO_ACADEMICO, (0, 0.3)),
+    Caso("construcao", "Lista × subordinado", ESTILO_LISTA, ESTILO_SUBORDINADO, (0, 0.3)),
+    Caso("construcao", "Diálogo × notícia", ESTILO_DIALOGO, MOLDE_POLICIA, (0, 0.3)),
+    Caso("construcao", "Voz ativa × voz passiva", ATIVA, PASSIVA, (0, 0.6)),
     #Citações e casos extremos
-    Caso("extremos", "Citação curta ao lado de texto próprio", LEITURA, f'{BALEIAS} {FEIJOADA} {FUTEBOL} Como disse o autor, "{LEITURA_F2[:-1]}".', (0, 0.4), (0, 0.15)),
-    Caso("extremos", "Cópia só nas referências", LEITURA, f"{BALEIAS} {FUTEBOL}\n\nReferências\n{LEITURA}", (0, 0.25), (0, 0.15)),
+    Caso("extremos", "Citação curta ao lado de texto próprio", LEITURA, f'{BALEIAS} {FEIJOADA} {FUTEBOL} Como disse o autor, "{LEITURA_F2[:-1]}".', (0, 0.3), (0, 0.15)),
+    Caso("extremos", "Cópia só nas referências", LEITURA, f"{BALEIAS} {FUTEBOL}\n\nReferências\n{LEITURA}", (0, 0.3), (0, 0.15)),
     Caso("extremos", "Só pontuação", "... !!! ???", "... !!! ???"),
     #Tentativas de burla
     Caso("burlas", "Trecho inteiro entre aspas", LEITURA, f'"{LEITURA}"', (0.9, 1), (0.9, 1)),
     Caso("burlas", "Trecho inteiro em aspas curvas", LEITURA, f"“{LEITURA}”", (0.9, 1), (0.9, 1)),
     Caso("burlas", "Linha 'Referências' antes da cópia", LEITURA, f"Referências\n{LEITURA}", (0.8, 1), (0.9, 1)),
     Caso("burlas", "Parágrafo que começa com 'Referências'", LEITURA, f"Referências importantes sobre o tema. {LEITURA}", (0.7, 1), (0.7, 1)),
-    Caso("burlas", "Aspas soltas de polegada", LEITURA, f'A tela tem 5" de largura. {LEITURA} O monitor de 7" é maior.', None, (0.55, 1)),
-    Caso("burlas", "Cópia integral com 8 frases novas", LEITURA, f"{LEITURA} {' '.join(ENCHIMENTO)}", None, (0.85, 1)),
-    Caso("burlas", "Cópia integral com 40 frases novas", LEITURA, f"{LEITURA} {' '.join(ENCHIMENTO * 5)}", None, (0.85, 1)),
-    Caso("burlas", "Enchimento antes da cópia", LEITURA, f"{' '.join(ENCHIMENTO * 5)} {LEITURA}", None, (0.85, 1)),
+    Caso("burlas", "Aspas soltas de polegada", LEITURA, f'A tela tem 5" de largura. {LEITURA} O monitor de 7" é maior.', (0.9, 1), (0.55, 1)),
+    Caso("burlas", "Cópia integral com 8 frases novas", LEITURA, f"{LEITURA} {' '.join(ENCHIMENTO)}", (0.9, 1), (0.85, 1)),
+    Caso("burlas", "Cópia integral com 40 frases novas", LEITURA, f"{LEITURA} {' '.join(ENCHIMENTO * 5)}", (0.9, 1), (0.85, 1)),
+    Caso("burlas", "Enchimento antes da cópia", LEITURA, f"{' '.join(ENCHIMENTO * 5)} {LEITURA}", (0.9, 1), (0.85, 1)),
     Caso("burlas", "Letras cirílicas parecidas", LEITURA, _trocar_homoglifos(LEITURA), (0.95, 1), (0.95, 1)),
     Caso("burlas", "Caracteres invisíveis nas palavras", LEITURA, _invisiveis(LEITURA), (0.95, 1), (0.95, 1)),
-    Caso("burlas", "Pontos trocados por ponto e vírgula", LEITURA, LEITURA.replace(". ", "; "), None, (0.6, 1)),
+    Caso("burlas", "Pontos trocados por ponto e vírgula", LEITURA, LEITURA.replace(". ", "; "), (0.9, 1), (0.6, 1)),
     Caso("burlas", "Texto colado de PDF", LEITURA_LONGA, _quebrar_linhas(LEITURA_LONGA), (0.95, 1), (0.9, 1)),
     Caso("burlas", "Original colado de PDF", _quebrar_linhas(LEITURA_LONGA), LEITURA_LONGA, (0.95, 1), (0.9, 1)),
-    Caso("burlas", "Só o início em comum, sem pontuação", f"{INICIO_COMUM} {FIM_ECONOMIA}", f"{INICIO_COMUM} {FIM_XADREZ}", None, (0.25, 0.7)),
-    Caso("burlas", "Só o fim em comum, sem pontuação", f"{FIM_XADREZ} {INICIO_COMUM}", f"{FIM_ECONOMIA} {INICIO_COMUM}", None, (0.25, 0.7)),
+    Caso("burlas", "Só o início em comum, sem pontuação", f"{INICIO_COMUM} {FIM_ECONOMIA}", f"{INICIO_COMUM} {FIM_XADREZ}", (0.3, 0.6), (0.25, 0.7)),
+    Caso("burlas", "Só o fim em comum, sem pontuação", f"{FIM_XADREZ} {INICIO_COMUM}", f"{FIM_ECONOMIA} {INICIO_COMUM}", (0.3, 0.6), (0.25, 0.7)),
 ]

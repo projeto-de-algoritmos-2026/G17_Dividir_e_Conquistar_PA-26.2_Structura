@@ -217,6 +217,7 @@ def analisar_semantica(texto_a: str, texto_b: str) -> dict:
         ],
         "legenda": "Em destaque: frases com a mesma ideia.",
         "trechos": resultado["trechos"],
+        "titulo_pares": "Frases equivalentes",
         "pares": resultado["pares"],
         "avisos": montar_avisos(texto_a, texto_b, frases_a, frases_b),
     }
