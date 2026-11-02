@@ -113,3 +113,27 @@ Todas autorizadas na seção 2 do plano. **`backend/core/algoritmos.py` não foi
 - **A primeira análise semântica baixa o modelo** e precisa de internet; as seguintes funcionam offline.
 - **A seção de referências** só é reconhecida quando uma linha começa com "Referências".
 - **O hover do `U13` não foi exercitado** em navegador; só o desenho dos trechos foi conferido.
+
+## Atualização: focos separados e frases curtas
+
+Cada modo agora responde a uma pergunta própria, conforme a tabela em `docs/algoritmos.md`. Esta seção vale sobre o que estiver diferente acima.
+
+- **Estrutural:** compara o formato das palavras, de forma simétrica, descontando o acaso. A nota aparece como "Similaridade estrutural".
+- **Semântica:** continua igual na análise. A nota aparece como "Suspeita de plágio".
+- **Palavras idênticas:** virou métrica à parte no modo estrutural e define os trechos destacados.
+- **Frases curtas:** os mínimos de palavras agora acompanham o tamanho do texto. Textos curtos idênticos davam 0% no estrutural e agora dão 100%.
+- **Código do Matheus:** `ProcessadorEstruturalLeve` foi mantido e ampliado (de 3 para 5 tamanhos, mais classes gramaticais e pontuação). O destaque de trechos voltou ao modo estrutural, agora só para palavras idênticas.
+- **Limite:** caiu de 30.000 para 20.000 caracteres por texto, por causa do tempo de processamento.
+
+| Caso | Estrutural | Semântica | Palavras idênticas |
+|---|---|---|---|
+| Cópia exata | 100% | 100% | 100% |
+| Mesma construção, outro tema | 49% | 0% | 0% |
+| Paráfrase | 24% | 75% | 0% |
+| Mesmo tema, texto próprio | 12% | 0% | 0% |
+| Tema diferente | 20% | 0% | 0% |
+| "O gato dorme no sofá." × "O cão late na rua." | 57% | 0% | 0% |
+| "Está chovendo." × "Chove agora." | 0% | 100% | 0% |
+| "Eu amo você." × "Eu te amo." | 0% | 0% | 100% |
+
+**Limitações de frases curtas no modo semântico:** com poucas palavras, o modelo é menos preciso. "Eu amo você." × "Eu te amo." fica em 0,60, abaixo do limiar, e "Bom dia." × "Boa noite." passa com 0,78. Mudar o limiar só para frases curtas troca um erro pelo outro, por isso ele continua igual. Nesses casos, confira também "Palavras idênticas".
