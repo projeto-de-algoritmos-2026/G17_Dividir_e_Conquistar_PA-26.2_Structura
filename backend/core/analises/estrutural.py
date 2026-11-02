@@ -2,7 +2,20 @@ import operator
 import random
 import re
 
-from backend.core.analises.comum import Segmento, classificar, comparar_segmentos, normalizar, ocultar_citacoes, parear
+from backend.core.analises.comum import (
+    PALAVRA,
+    RE_PALAVRA,
+    Segmento,
+    TextoGrandeDemais,
+    avisos_citacoes,
+    classificar,
+    comparar_segmentos,
+    contar_palavras,
+    normalizar,
+    ocultar_citacoes,
+    parear,
+    sem_conteudo,
+)
 from backend.core.dividir_conquistar.hirschberg import hirschberg, tamanho_lcs
 
 MIN_PARES = 3
@@ -12,7 +25,11 @@ EMBARALHAMENTOS = 3
 TOKENS_ACASO_COMPLETO = 40 #em textos curtos, embaralhar quase não muda a sequência
 SEMENTE = 17 #fixa para o mesmo par de textos sempre receber a mesma nota
 AMOSTRA_ACASO = 800 #a taxa de acaso se estabiliza cedo; o texto inteiro levaria dezenas de segundos
+MAX_TOKENS = 6000 #o alinhamento é quadrático: 20.000 caracteres de tokens mínimos levavam 84 segundos
+MIN_TOKENS_CONFIAVEL = 20 #medido: abaixo disso, até 46% dos pares sem relação passam de "baixa"; acima, 3%
+MIN_TRECHO_LITERAL = 6 #tantas palavras de conteúdo seguidas raramente coincidem por acaso
 FAIXAS = [(0.45, "alta"), (0.25, "moderada"), (0.0, "baixa")]
+PONTUACAO = ".,;:!?"
 
 STOPWORDS = set("""
 a ao aos as com como da das de do dos e ela elas ele eles em entre era essa esse esta este
@@ -51,26 +68,29 @@ class ProcessadorEstruturalLeve:
 
     @staticmethod
     def classificar_token(token: str) -> str:
-        if not token[0].isalnum():
+        if token in PONTUACAO:
             return token
-        if token.isdigit():
-            return "NUMERO"
         palavra = normalizar(token)
+        if palavra.isdigit():
+            return "NUMERO"
         return CLASSE_DA_PALAVRA.get(palavra) or ProcessadorEstruturalLeve.classificar_tamanho(palavra)
 
     @staticmethod
     def extrair_estrutura(texto: str) -> list[str]:
         #Pontuação e palavras de ligação ficam: elas mostram como o texto é construído.
-        tokens = re.findall(r"\w+|[.,;:!?]", ocultar_citacoes(texto))
+        tokens = re.findall(rf"{PALAVRA}|[{PONTUACAO}]", ocultar_citacoes(texto))
         return [ProcessadorEstruturalLeve.classificar_token(token) for token in tokens]
 
-def extrair_palavras(texto: str) -> list[Segmento]:
+def listar_palavras(texto: str) -> list[Segmento]:
     palavras = []
-    for achado in re.finditer(r"\w+", ocultar_citacoes(texto)):
+    for achado in RE_PALAVRA.finditer(texto):
         palavra = normalizar(achado.group())
         if palavra not in STOPWORDS:
             palavras.append(Segmento(palavra, achado.start(), achado.end()))
     return palavras
+
+def extrair_palavras(texto: str) -> list[Segmento]:
+    return listar_palavras(ocultar_citacoes(texto))
 
 def medir_acaso(forma_a: list[str], forma_b: list[str]) -> float:
     #Embaralhar B mantém as mesmas categorias, mas destrói a construção do texto.
@@ -83,15 +103,28 @@ def medir_acaso(forma_a: list[str], forma_b: list[str]) -> float:
         total += tamanho_lcs(amostra_a, embaralhada[:AMOSTRA_ACASO], operator.eq)
     return 2 * total / EMBARALHAMENTOS / (len(amostra_a) + min(len(forma_b), AMOSTRA_ACASO))
 
+def descontar_acaso(forma_a: list[str], forma_b: list[str], bruta: float) -> tuple[float, float]:
+    #Com uma categoria só, embaralhar não muda nada: o desconto não teria o que medir.
+    if len(set(forma_a + forma_b)) <= 1:
+        return bruta, 0.0
+    total = len(forma_a) + len(forma_b)
+    acaso = medir_acaso(forma_a, forma_b) * min(1, total / TOKENS_ACASO_COMPLETO)
+    if acaso >= 1:
+        return bruta, acaso
+    return max(0.0, (bruta - acaso) / (1 - acaso)), acaso
+
 def analisar_estrutura(texto_a: str, texto_b: str) -> dict:
     forma_a = ProcessadorEstruturalLeve.extrair_estrutura(texto_a)
     forma_b = ProcessadorEstruturalLeve.extrair_estrutura(texto_b)
+    if not contar_palavras(ocultar_citacoes(texto_a)) or not contar_palavras(ocultar_citacoes(texto_b)):
+        return sem_conteudo()
+    if max(len(forma_a), len(forma_b)) > MAX_TOKENS:
+        raise TextoGrandeDemais(f"Cada texto pode ter até {MAX_TOKENS:,} palavras e sinais de pontuação.".replace(",", "."))
     total = len(forma_a) + len(forma_b)
 
     #Simétrica: similaridade é uma relação entre os dois textos, não uma origem.
-    bruta = 2 * len(hirschberg(forma_a, forma_b, operator.eq)) / total if total else 0.0
-    acaso = medir_acaso(forma_a, forma_b) * min(1, total / TOKENS_ACASO_COMPLETO) if total else 0.0
-    nota = max(0.0, (bruta - acaso) / (1 - acaso))
+    bruta = 2 * len(hirschberg(forma_a, forma_b, operator.eq)) / total
+    nota, acaso = descontar_acaso(forma_a, forma_b, bruta)
 
     #Frases curtas têm poucas palavras, então os mínimos acompanham o tamanho do texto.
     palavras_a = extrair_palavras(texto_a)
@@ -100,12 +133,18 @@ def analisar_estrutura(texto_a: str, texto_b: str) -> dict:
     min_pares = min(MIN_PARES, len(palavras_b))
     min_bloco = min(MIN_BLOCO, len(palavras_b))
     literal = comparar_segmentos(palavras_a, palavras_b, iguais, "palavras", min_pares, min_bloco, TOLERANCIA)
-    _, ordem, trechos, inversoes, _ = [metrica["valor"] for metrica in literal["metricas"]]
     #Conta todas as palavras: "céu azul" e "azul céu" são idênticas, mesmo sem formar bloco.
     identicas = len(parear(len(palavras_a), len(palavras_b), iguais))
     proporcao = identicas / len(palavras_b) if palavras_b else 0.0
 
-    faixa = classificar(nota, FAIXAS)
+    avisos = avisos_citacoes(texto_a, texto_b)
+    if literal["maior_bloco"] >= MIN_TRECHO_LITERAL:
+        avisos.append(f"Há um trecho com {literal['maior_bloco']} palavras idênticas seguidas.")
+
+    curto = min(len(forma_a), len(forma_b)) < MIN_TOKENS_CONFIAVEL
+    if curto:
+        avisos.append("Texto curto: coincidir no formato é fácil, e a nota não indica semelhança real.")
+    faixa = "inconclusiva" if curto else classificar(nota, FAIXAS)
     return {
         "nota": round(nota, 4),
         "faixa": faixa,
@@ -115,11 +154,13 @@ def analisar_estrutura(texto_a: str, texto_b: str) -> dict:
             {"rotulo": "Formato em comum", "valor": f"{bruta:.0%}"},
             {"rotulo": "Esperado por acaso", "valor": f"{acaso:.0%}"},
             {"rotulo": "Palavras idênticas", "valor": f"{identicas} de {len(palavras_b)} ({proporcao:.0%})"},
-            {"rotulo": "Trechos idênticos", "valor": trechos},
-            {"rotulo": "Ordem dos trechos", "valor": ordem},
-            {"rotulo": "Inversões", "valor": inversoes},
+            {"rotulo": "Maior trecho idêntico", "valor": f"{literal['maior_bloco']} palavras"},
+            {"rotulo": "Trechos idênticos", "valor": str(literal["n_blocos"])},
+            {"rotulo": "Ordem dos trechos", "valor": f"{literal['ordem']:.0%}"},
+            {"rotulo": "Inversões", "valor": str(literal["n_inversoes"])},
         ],
         "legenda": "Em destaque: trechos com palavras idênticas.",
         "trechos": literal["trechos"],
         "pares": [],
+        "avisos": avisos,
     }
