@@ -1,19 +1,18 @@
+from pathlib import Path
+
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from backend.api.routes import router as api_router
 
-app = FastAPI(title="Detector de Similaridade Estrutural", version="1.0")
+PASTA_FRONTEND = Path(__file__).parent.parent / "frontend"
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI(title="Detector de Similaridade Estrutural", version="1.0")
 
 app.include_router(api_router, prefix="/api")
 
 @app.get("/api/status")
 def health_check():
     return {"status": "ok", "mensagem": "Servidor rodando"}
+
+#Fica por último para não capturar as rotas da API.
+app.mount("/", StaticFiles(directory=PASTA_FRONTEND, html=True), name="frontend")

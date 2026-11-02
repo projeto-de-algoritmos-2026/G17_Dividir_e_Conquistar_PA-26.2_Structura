@@ -1,5 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+MAX_CARACTERES = 30000
 
 class TextoRequest(BaseModel):
-    texto_a: str
-    texto_b: str
+    texto_a: str = Field(max_length=MAX_CARACTERES)
+    texto_b: str = Field(max_length=MAX_CARACTERES)
+    modo: str = "estrutural"
+    limiar: float = Field(default=0.75, ge=0, le=1)
