@@ -1,4 +1,4 @@
-<h1><font size="6"><b>Detector de Similaridade</b></font><br></h1>
+<h1><font size="6"><b>Structura</b></font><br></h1>
 <h3><b>Número da Lista:</b> 17<br></h3>
 <h3><i>Conteúdo da disciplina:</i> Dividir e Conquistar<br></h3>
 <h3>Alunos</h3>
@@ -11,7 +11,7 @@
 ---
 
 ## Sobre
-Ferramenta web que compara dois textos em dois modos:
+O **Structura** é uma ferramenta web que atua como **Detector de Similaridade** apontando indícios de plágio entre dois textos, em dois modos:
 
 - **Estrutural:** as frases foram construídas do mesmo jeito? Olha a classe gramatical das palavras, não o assunto.
 - **Semântica:** as ideias vêm do original? Reconhece cópias reescritas com outras palavras.
