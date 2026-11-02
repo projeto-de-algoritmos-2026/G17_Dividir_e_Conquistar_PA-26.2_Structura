@@ -9,9 +9,6 @@ const txtA = document.getElementById('textoA');
 const txtB = document.getElementById('textoB');
 const seletorModo = document.getElementById('seletorModo');
 const descricaoModo = document.getElementById('descricaoModo');
-const campoLimiar = document.getElementById('campoLimiar');
-const limiar = document.getElementById('limiar');
-const valorLimiar = document.getElementById('valorLimiar');
 const erro = document.getElementById('erro');
 
 let modos = [];
@@ -30,7 +27,6 @@ function modoAtual() {
 function atualizarModo() {
     const modo = modoAtual();
     descricaoModo.textContent = modo.descricao;
-    campoLimiar.classList.toggle('escondido', !modo.usa_limiar);
     esconderResultado();
 }
 
@@ -80,10 +76,10 @@ async function analisar() {
     if (!textosValidos(texto_a, texto_b)) return;
 
     btnAnalisar.disabled = true;
-    btnAnalisar.textContent = modo.usa_limiar ? 'Lendo o significado...' : 'Analisando...';
+    btnAnalisar.textContent = 'Analisando...';
 
     try {
-        const dados = await comparar({ texto_a, texto_b, modo: modo.id, limiar: Number(limiar.value) });
+        const dados = await comparar({ texto_a, texto_b, modo: modo.id });
         mostrarResultado(dados, texto_a, texto_b);
     } catch (falha) {
         esconderResultado();
@@ -109,9 +105,6 @@ async function iniciar() {
 btnAnalisar.addEventListener('click', analisar);
 txtA.addEventListener('input', atualizarContadores);
 txtB.addEventListener('input', atualizarContadores);
-limiar.addEventListener('input', () => {
-    valorLimiar.textContent = `${Math.round(limiar.value * 100)}%`;
-});
 document.getElementById('btnExemplo').addEventListener('click', () => {
     txtA.value = EXEMPLO_A;
     txtB.value = EXEMPLO_B;

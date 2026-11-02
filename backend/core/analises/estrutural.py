@@ -2,13 +2,14 @@ import operator
 import random
 import re
 
-from backend.core.analises.comum import Segmento, classificar, comparar_segmentos, normalizar, ocultar_citacoes
+from backend.core.analises.comum import Segmento, classificar, comparar_segmentos, normalizar, ocultar_citacoes, parear
 from backend.core.dividir_conquistar.hirschberg import hirschberg, tamanho_lcs
 
 MIN_PARES = 3
 MIN_BLOCO = 2
 TOLERANCIA = 2 #trocas entre palavras vizinhas não contam como desordem
 EMBARALHAMENTOS = 3
+TOKENS_ACASO_COMPLETO = 40 #em textos curtos, embaralhar quase não muda a sequência
 SEMENTE = 17 #fixa para o mesmo par de textos sempre receber a mesma nota
 AMOSTRA_ACASO = 800 #a taxa de acaso se estabiliza cedo; o texto inteiro levaria dezenas de segundos
 FAIXAS = [(0.45, "alta"), (0.25, "moderada"), (0.0, "baixa")]
@@ -82,15 +83,15 @@ def medir_acaso(forma_a: list[str], forma_b: list[str]) -> float:
         total += tamanho_lcs(amostra_a, embaralhada[:AMOSTRA_ACASO], operator.eq)
     return 2 * total / EMBARALHAMENTOS / (len(amostra_a) + min(len(forma_b), AMOSTRA_ACASO))
 
-def analisar_estrutura(texto_a: str, texto_b: str, limiar: float) -> dict:
+def analisar_estrutura(texto_a: str, texto_b: str) -> dict:
     forma_a = ProcessadorEstruturalLeve.extrair_estrutura(texto_a)
     forma_b = ProcessadorEstruturalLeve.extrair_estrutura(texto_b)
     total = len(forma_a) + len(forma_b)
 
     #Simétrica: similaridade é uma relação entre os dois textos, não uma origem.
     bruta = 2 * len(hirschberg(forma_a, forma_b, operator.eq)) / total if total else 0.0
-    acaso = medir_acaso(forma_a, forma_b) if total else 0.0
-    nota = bruta if acaso >= 1 else max(0.0, (bruta - acaso) / (1 - acaso))
+    acaso = medir_acaso(forma_a, forma_b) * min(1, total / TOKENS_ACASO_COMPLETO) if total else 0.0
+    nota = max(0.0, (bruta - acaso) / (1 - acaso))
 
     #Frases curtas têm poucas palavras, então os mínimos acompanham o tamanho do texto.
     palavras_a = extrair_palavras(texto_a)
@@ -99,7 +100,9 @@ def analisar_estrutura(texto_a: str, texto_b: str, limiar: float) -> dict:
     min_pares = min(MIN_PARES, len(palavras_b))
     min_bloco = min(MIN_BLOCO, len(palavras_b))
     literal = comparar_segmentos(palavras_a, palavras_b, iguais, "palavras", min_pares, min_bloco, TOLERANCIA)
-    identicas, ordem, trechos, inversoes, _ = [metrica["valor"] for metrica in literal["metricas"]]
+    _, ordem, trechos, inversoes, _ = [metrica["valor"] for metrica in literal["metricas"]]
+    #Conta todas as palavras: "céu azul" e "azul céu" são idênticas, mesmo sem formar bloco.
+    identicas = len(parear(len(palavras_a), len(palavras_b), iguais)) / len(palavras_b) if palavras_b else 0.0
 
     faixa = classificar(nota, FAIXAS)
     return {
@@ -110,7 +113,7 @@ def analisar_estrutura(texto_a: str, texto_b: str, limiar: float) -> dict:
         "metricas": [
             {"rotulo": "Formato em comum", "valor": f"{bruta:.0%}"},
             {"rotulo": "Esperado por acaso", "valor": f"{acaso:.0%}"},
-            {"rotulo": "Palavras idênticas", "valor": identicas},
+            {"rotulo": "Palavras idênticas", "valor": f"{identicas:.0%}"},
             {"rotulo": "Trechos idênticos", "valor": trechos},
             {"rotulo": "Ordem dos trechos", "valor": ordem},
             {"rotulo": "Inversões", "valor": inversoes},

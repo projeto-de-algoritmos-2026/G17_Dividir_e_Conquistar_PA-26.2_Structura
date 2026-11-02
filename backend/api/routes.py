@@ -8,7 +8,7 @@ router = APIRouter()
 @router.get("/analises")
 def listar_analises():
     modos = [
-        {"id": id_modo, "rotulo": a["rotulo"], "descricao": a["descricao"], "usa_limiar": a["usa_limiar"]}
+        {"id": id_modo, "rotulo": a["rotulo"], "descricao": a["descricao"]}
         for id_modo, a in ANALISES.items()
     ]
     return {"modos": modos, "max_caracteres": MAX_CARACTERES}
@@ -18,5 +18,5 @@ def comparar_textos(payload: TextoRequest):
     if payload.modo not in ANALISES:
         raise HTTPException(status_code=422, detail="Modo de análise desconhecido.")
 
-    resultado = ANALISES[payload.modo]["analisar"](payload.texto_a, payload.texto_b, payload.limiar)
+    resultado = ANALISES[payload.modo]["analisar"](payload.texto_a, payload.texto_b)
     return {"modo": payload.modo, **resultado}
