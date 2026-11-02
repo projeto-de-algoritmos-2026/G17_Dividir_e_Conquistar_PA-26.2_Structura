@@ -8,17 +8,17 @@ Cada modo responde a uma pergunta diferente.
 | **Resultado** | Similaridade | Suspeita de plágio |
 | **Olha o assunto?** | Não | Sim |
 | **Direção** | Simétrica | Do suspeito para o original |
-| **Unidade** | Formato de cada palavra | Frase |
+| **Unidade** | Classe gramatical de cada palavra, agrupada em frases | Frase |
 
 ```
-Estrutural: Extrair formatos → Alinhar (Hirschberg) → Descontar o acaso → Nota
+Estrutural: Classificar palavras → Separar frases → Alinhar frases (Hirschberg ponderado) → Medir ordem (inversões) → Comparar o texto inteiro (Hirschberg) → Nota
 Semântica:  Separar frases → Alinhar (Hirschberg ponderado) → Resgatar fusões → Agrupar em blocos → Medir ordem (inversões) → Nota
 ```
 
 | Algoritmo | Pergunta que responde | Recorrência | Tempo | Espaço |
 |---|---|---|---|---|
 | Hirschberg | Quais trechos correspondem? | `T(n, m) = T(n/2, k) + T(n/2, m−k) + O(nm)` | `O(nm)` | `O(n + m)` |
-| Hirschberg ponderado | Qual é o melhor conjunto de frases equivalentes? | A mesma | `O(nm)` | `O(n + m)` |
+| Hirschberg ponderado | Qual é o melhor conjunto de frases correspondentes? | A mesma | `O(nm)` | `O(n + m)` |
 | Counting Inversions | Quanto a ordem mudou? | `T(n) = 2T(n/2) + O(n)` | `O(n log n)` | `O(n)` |
 | Inversões significativas | Essa troca é relevante? | `T(n) = 2T(n/2) + O(n)` | `O(n log n)` | `O(n)` |
 
@@ -42,7 +42,7 @@ A versão ponderada usa a mesma divisão, mas maximiza a soma dos pesos, e não 
 
 Durante o merge, quando um elemento da direita passa à frente, ele forma inversão com todos os elementos restantes da esquerda. Isso permite somar vários pares de uma vez, sem compará-los um a um. O valor aparece na tela como **Inversões**.
 
-No modo estrutural, as inversões são uma métrica à parte: a nota mede a forma do texto, e quem mostra a reordenação é "Palavras idênticas" e "Ordem dos trechos". No modo semântico, a ordem entra na nota pelas inversões significativas.
+Nos dois modos, a ordem das frases entra na nota pelas inversões significativas.
 
 ## Inversões significativas
 
@@ -50,38 +50,67 @@ No modo estrutural, as inversões são uma métrica à parte: a nota mede a form
 
 Conta pares `i < j` com `a[i] > a[j] + tolerância`. A condição difere da comparação usada no merge, então a contagem é feita em uma varredura própria com dois ponteiros, antes de mesclar.
 
-É aplicada ao início de cada bloco, e isso define a **Ordem**. Com isso, trocar duas metades do texto conta como um movimento, e não como centenas de inversões entre palavras. A ordem tira no máximo 15% da nota das frases, porque reordenar não apaga a cópia.
+É aplicada ao início de cada bloco, e isso define a **Ordem**. Com isso, trocar duas metades do texto conta como um movimento, e não como centenas de inversões entre palavras. A ordem tira no máximo 15% da nota das frases, porque reordenar não apaga a cópia nem muda como cada frase foi construída.
 
 | Modo | Tolerância | Motivo |
 |---|---|---|
-| Estrutural | 2 posições | Trocar palavras vizinhas não muda a estrutura |
-| Semântica | 0 | Mover uma frase já é uma mudança real |
+| Frases, nos dois modos | 0 | Mover uma frase já é uma mudança real |
+| Palavras idênticas | 2 posições | Trocar palavras vizinhas não muda o trecho |
 
 ## Modo estrutural
 
 `backend/core/analises/estrutural.py`
 
-Cada token vira uma categoria: pontuação, número, classe gramatical (artigo, preposição, conjunção, pronome, negação) ou um de cinco tamanhos de palavra. Assim, "O gato dorme no sofá." e "O cão late na rua." têm formatos parecidos, mesmo sem nenhuma palavra em comum. A ideia de classificar por tamanho vem do `ProcessadorEstruturalLeve`.
+`backend/core/analises/gramatica.py` classifica as palavras.
+
+Cada token vira uma classe gramatical: artigo, preposição, conjunção, pronome, negação, verbo, advérbio, substantivo, adjetivo ou número, além da pontuação. Assim, "O gato dorme no sofá." e "O cão late na rua." têm a mesma forma, sem nenhuma palavra em comum. Antes, as palavras de conteúdo eram classificadas pelo tamanho: "menino" e "ministro" caíam em categorias diferentes, e "bola" e "lei" na mesma de "nova".
+
+A classe vem de três fontes, em Python puro, sem dependências:
+
+1. **Léxico:** palavras de ligação, verbos irregulares, numerais e adjetivos comuns. O acento é usado quando os dois textos têm acentos, para separar "é" de "e" e "está" de "esta".
+2. **Sufixos do português:** `-mente` para advérbio, `-aram` e `-ando` para verbo, `-ção` e `-dade` para substantivo, `-oso` e `-ável` para adjetivo.
+3. **Contexto:** "o jantar" é nome e "vai jantar" é verbo; "a lei foi assinada" é verbo e "a lei assinada" é adjetivo.
+
+Maiúsculas não são usadas, para a nota não mudar com a caixa em que o texto foi colado. Em textos da Wikipédia, esse classificador concorda com o spaCy, um etiquetador estatístico treinado, em 91% das palavras, sem contar artigos e palavras de ligação como "que" e "se", em que os dois adotam convenções diferentes.
 
 ```
-formato = 2 × LCS(formato A, formato B) / (tamanho A + tamanho B)
-acaso   = a mesma conta com B embaralhado (3 vezes, em amostra de 800 tokens)
-          × min(1, tokens dos dois textos / 40)
-nota    = (formato − acaso) / (1 − acaso), nunca abaixo de 0
+comum(i, j)  = LCS das classes da frase i com as da frase j
+similar(i,j) = 2 × comum / (tamanho i + tamanho j)
+limiar       = 0,75 + 0,01 × max(0, 20 − tamanho médio do par)
+frases       = Hirschberg ponderado sobre os pares acima do limiar, somando comum(i, j)
+conjunta     = 2 × tokens em comum / (tokens A + tokens B)
+cobertura    = max(tokens em comum / tokens A, tokens em comum / tokens B), se o texto menor estiver contido
+             = conjunta, nos demais casos
+por frases   = cobertura × (0,85 + 0,15 × ordem)
+contínua     = (formato − acaso) / (1 − acaso), nunca abaixo de 0
+nota         = max(por frases, contínua)
+```
+
+**Por que comparar frase a frase:** uma LCS do texto inteiro só enxerga o que está na mesma ordem. Trocar duas frases de lugar, ou colocar material novo antes da cópia, derrubava a nota, embora cada frase continuasse construída do mesmo jeito. Agora cada frase procura sua par em qualquer posição: Hirschberg ponderado acha as que estão em ordem, e `parear` recupera as que mudaram de lugar.
+
+**Por que o limiar muda com o tamanho:** com 10 classes, frases curtas coincidem com facilidade. Em frases reais sem relação, o percentil 99 da similaridade cai de 0,80, em 10 tokens, para 0,70, em 25 tokens, enquanto frases de mesma sintaxe ficam acima de 0,82.
+
+**Por que o texto inteiro continua sendo comparado:** frases fundidas ou divididas não têm uma par exata, e a comparação contínua as reconhece.
+
+```
+formato = 2 × LCS(classes A, classes B) / (tamanho A + tamanho B)
+acaso   = a mesma conta com um dos textos embaralhado (3 vezes, em amostra de 800 tokens)
           (quando tudo é da mesma categoria, nota = formato: embaralhar não mudaria nada)
 ```
 
-Sem o desconto, dois textos quaisquer em português já pareceriam bastante similares, porque usam as mesmas categorias. Embaralhar mantém as categorias, mas destrói a construção, o que mede justamente essa parte devida ao acaso. Em textos curtos, embaralhar quase não muda a sequência, por isso o desconto é proporcional ao tamanho.
+**Quando o texto menor está contido no maior:** exige ao menos 3 frases em comum, 20 tokens e similaridade média de 0,90. Sem isso, entre dezenas de frases candidatas, alguma coincidiria por acaso. Usar o maior dos dois sentidos mantém a nota simétrica: trocar os textos de lugar nunca muda o resultado.
+
+Trechos sem pontuação são divididos a cada 60 tokens; do contrário, o texto inteiro viraria uma "frase".
 
 **Palavras idênticas** é uma medida à parte, que não entra na nota: compara as palavras sem stopwords, com Hirschberg, blocos e inversões. É ela que define os trechos destacados na tela.
 
 | Nota | Faixa |
 |---|---|
-| Abaixo de 25% | Baixa |
-| De 25% a 44% | Moderada |
-| 45% ou mais | Alta |
+| Abaixo de 30% | Baixa |
+| De 30% a 59% | Moderada |
+| 60% ou mais | Alta |
 
-Com menos de 20 tokens em um dos textos, a faixa é **inconclusiva**: medimos 2.500 pares sem relação, e abaixo de 15 tokens até 46% deles passavam de "baixa", contra 3% com 20 tokens ou mais.
+Com menos de 20 tokens em um dos textos, a faixa é **inconclusiva**: em frases reais sem relação, de 14% a 31% dos pares abaixo desse tamanho passam de "baixa".
 
 ## Nota do modo semântico
 
@@ -105,7 +134,7 @@ A visão geral só reforça o alinhamento. Sozinha, ela chegaria a 85% em redaç
 | De 30% a 59% | Moderada |
 | 60% ou mais | Alta |
 
-As faixas dos dois modos são pontos de partida: foram conferidas em `tests/corpus.py`, mas não em um conjunto real de textos.
+As faixas do modo semântico foram conferidas em `tests/corpus.py`, mas não em um conjunto real de textos. As do modo estrutural foram validadas em artigos reais da Wikipédia, com os resultados em [testes.md](testes.md).
 
 ## Modo semântico
 

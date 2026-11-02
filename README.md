@@ -13,10 +13,10 @@
 ## Sobre
 O **Detector de Similaridade** é uma ferramenta web que aponta indícios de plágio entre dois textos, em dois modos:
 
-- **Estrutural:** mede se os textos são construídos do mesmo jeito, sem olhar o assunto. O resultado é uma similaridade.
+- **Estrutural:** mede se as frases são construídas do mesmo jeito, pela classe gramatical das palavras, sem olhar o assunto. O resultado é uma similaridade.
 - **Semântica:** procura ideias do original no texto suspeito, mesmo reescritas. O resultado é uma suspeita de plágio.
 
-Os dois modos usam dividir e conquistar: **Hirschberg** para alinhar as sequências e **Counting Inversions (Merge Sort modificado)** para medir o quanto a ordem mudou, o que entra na nota do modo semântico e aparece como métrica no estrutural. Detalhes em [docs/algoritmos.md](docs/algoritmos.md), e resultados em [docs/testes.md](docs/testes.md).
+Os dois modos usam dividir e conquistar: **Hirschberg** para alinhar as sequências e **Counting Inversions (Merge Sort modificado)** para medir o quanto a ordem mudou, o que entra na nota dos dois modos. Detalhes em [docs/algoritmos.md](docs/algoritmos.md), e resultados em [docs/testes.md](docs/testes.md).
 
 ## Screenshots
 

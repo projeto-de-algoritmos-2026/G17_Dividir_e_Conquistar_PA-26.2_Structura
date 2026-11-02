@@ -9,16 +9,16 @@ Compara dois textos de duas formas: se foram **construídos do mesmo jeito** (es
 | | Estrutural | Semântica |
 |---|---|---|
 | **Pergunta** | Os textos têm a mesma forma? | As ideias vêm do original? |
-| **Unidade** | Formato de cada palavra | Frase |
+| **Unidade** | Classe gramatical das palavras, frase a frase | Frase |
 | **Olha o assunto?** | Não | Sim |
 | **Resultado** | Similaridade | Suspeita de plágio |
-| **Faixas** | Baixa < 25% ≤ moderada < 45% ≤ alta | Baixa < 30% ≤ moderada < 60% ≤ alta |
+| **Faixas** | Baixa < 30% ≤ moderada < 60% ≤ alta | Baixa < 30% ≤ moderada < 60% ≤ alta |
 
 ## Algoritmos de dividir e conquistar
 
 | Algoritmo | Para que serve | Como divide | Tempo | Espaço |
 |---|---|---|---|---|
-| **Hirschberg** | Acha a maior sequência em comum | Corta A ao meio, acha o melhor corte em B e resolve os dois lados | `O(nm)` | `O(n + m)` |
+| **Hirschberg** | Acha a maior sequência de classes em comum | Corta A ao meio, acha o melhor corte em B e resolve os dois lados | `O(nm)` | `O(n + m)` |
 | **Hirschberg ponderado** | Escolhe os melhores pares de frases | A mesma divisão, somando similaridades em vez de contar pares | `O(nm)` | `O(n + m)` |
 | **Counting Inversions** | Conta quantos pares estão fora de ordem | Merge sort: quando um elemento da direita passa à frente, inverte com todos os restantes da esquerda | `O(n log n)` | `O(n)` |
 | **Inversões significativas** | Ignora trocas pequenas | Merge sort com contagem própria de pares `a[i] > a[j] + tolerância` | `O(n log n)` | `O(n)` |
@@ -32,13 +32,16 @@ Compara dois textos de duas formas: se foram **construídos do mesmo jeito** (es
 
 **Estrutural**
 
-1. Cada palavra vira uma categoria: artigo, preposição, número, tamanho e assim por diante.
-2. Hirschberg acha a maior sequência de categorias em comum.
-3. O acaso é medido embaralhando o segundo texto, e esse valor é descontado.
+1. Cada palavra vira uma classe gramatical: substantivo, verbo, preposição e assim por diante.
+2. Cada par de frases é comparado, e o par conta se a similaridade passa de 75% (mais em frases curtas).
+3. Hirschberg ponderado alinha as frases, e uma varredura recupera as que mudaram de lugar.
+4. As inversões medem quanto a ordem mudou.
+5. O texto inteiro também é comparado, descontando o acaso, para reconhecer frases fundidas ou divididas.
 
 ```
-formato = 2 × tamanho da sequência comum / total de tokens
-nota    = (formato − acaso) / (1 − acaso)
+por frases = cobertura × (0,85 + 0,15 × ordem)
+contínua   = (formato − acaso) / (1 − acaso)
+nota       = max(por frases, contínua)
 ```
 
 **Semântica**
@@ -65,13 +68,14 @@ nota   = max(frases, min(ideia geral, frases + 0,20))
 
 | Estatística | O que diz |
 |---|---|
-| Formato em comum | Quanto da sequência de categorias coincide, antes do desconto |
-| Esperado por acaso | Quanto coincidiria em textos sem relação com as mesmas categorias |
+| Frases de mesma construção | Quantas frases têm uma par com a mesma estrutura |
+| Ordem das frases | Se essas frases seguem a mesma ordem; 100% é a mesma ordem |
+| Inversões | Pares de frases em ordem trocada |
+| Formato em comum | Quanto da sequência de classes do texto inteiro coincide, antes do desconto |
+| Esperado por acaso | Quanto coincidiria com as mesmas classes em ordem aleatória |
 | Palavras idênticas | Palavras de conteúdo do suspeito que existem no original; não entra na nota |
 | Maior trecho idêntico | Maior sequência copiada, sem contar palavras comuns |
 | Trechos idênticos | Quantos blocos de palavras iguais foram achados |
-| Ordem dos trechos | Se esses blocos seguem a mesma ordem do original |
-| Inversões | Pares de palavras em ordem trocada |
 
 **Semântica**
 
@@ -90,13 +94,13 @@ nota   = max(frases, min(ideia geral, frases + 0,20))
 ## Funcionalidades
 
 - **Trechos destacados:** mostram onde estão as correspondências. Passar o mouse acende o par nos dois textos.
-- **Frases equivalentes:** lista cada par de frases com sua nota.
+- **Frases equivalentes e de mesma construção:** cada modo lista os pares de frases com sua nota.
 - **Avisos:** informam o que ficou fora da análise, frases idênticas e trechos copiados.
 - **Citações e referências:** citações curtas e a seção final de referências são ignoradas, até 40 palavras por citação e 25% do texto.
 - **Proteção contra burlas:** caracteres invisíveis e letras parecidas de outros alfabetos são normalizados.
 - **Texto colado de PDF:** quebra de linha simples não termina frase.
 - **Frases longas:** passam de 60 palavras e são divididas, porque o modelo corta o que excede seu limite.
-- **Faixa inconclusiva:** no estrutural, textos com menos de 20 tokens não recebem faixa, porque o formato coincide com facilidade.
+- **Faixa inconclusiva:** no estrutural, textos com menos de 20 tokens não recebem faixa, porque a construção coincide com facilidade.
 - **Sem conteúdo:** se nada sobrar para analisar, a tela mostra um traço em vez de 0%.
 - **Limites:** 20.000 caracteres, 6.000 tokens no estrutural e 1.000 frases na semântica.
 
@@ -105,21 +109,22 @@ nota   = max(frases, min(ideia geral, frases + 0,20))
 | Caso | Estrutural | Semântica | O que mostra |
 |---|---|---|---|
 | Cópia exata | 100% | 100% | Os dois modos concordam |
-| Frases reordenadas | 26% | 100% | A forma muda, mas as ideias continuam |
-| Paráfrase | 21% | 87% | Palavras diferentes, mesma ideia |
-| Mesma construção, outro tema | 48% | 0% | Mesma forma, ideias diferentes |
-| Cópia com 40 frases novas | 2% | 100% | O enchimento não esconde a cópia |
+| Frases reordenadas | 92% | 100% | Mudar a ordem não apaga a construção nem as ideias |
+| Paráfrase | 36% | 87% | Palavras diferentes, mesma ideia |
+| Mesma construção, outro tema | 100% | 0% | Mesma forma, ideias diferentes |
+| Cópia com 40 frases novas | 100% | 100% | O enchimento não esconde a cópia |
 
 ## Limitações
 
 - O modelo não percebe inversão de sentido: "eleva" × "reduz" dá 88%.
 - Textos muito curtos seguem imprecisos: "Bom dia." × "Boa noite." dá 78%.
-- Limiares e faixas foram ajustados com textos escritos por nós, não com um conjunto real.
+- Na semântica, limiares e faixas foram ajustados com textos escritos por nós. O estrutural foi validado em artigos reais da Wikipédia, com pares gerados por programa.
 - Uma reescrita sem nenhuma frase correspondente fica limitada a 20%.
 
 ## Perguntas prováveis
 
 - **Por que Hirschberg, e não a tabela completa?** Dá o mesmo resultado, gastando memória linear em vez de quadrática.
 - **Por que dois modos?** Cada um enxerga o que o outro não vê: paráfrase na semântica, construção no estrutural.
-- **Onde as inversões entram na nota?** Na semântica, pela Ordem. No estrutural, são só uma métrica à parte.
+- **Onde as inversões entram na nota?** Nos dois modos, pela Ordem, que tira no máximo 15% da nota das frases.
+- **Por que classe gramatical, e não tamanho da palavra?** O tamanho separava "menino" de "ministro", que têm a mesma função, e juntava "lei" com "nova". O acerto em artigos reais foi de 53,8% para 99,6%.
 - **Como sabemos que funciona?** Os algoritmos batem com a força bruta em entradas aleatórias, e `python -m pytest` roda a bateria inteira, descrita em [testes.md](testes.md).
