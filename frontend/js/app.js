@@ -60,7 +60,8 @@ function textosValidos(texto_a, texto_b) {
         mostrarErro('Preencha os dois textos para continuar.');
         return false;
     }
-    if (Math.max(texto_a.length, texto_b.length) > maxCaracteres) {
+    //Array.from conta como o backend: um emoji é um caractere, e não dois.
+    if (Math.max(Array.from(texto_a).length, Array.from(texto_b).length) > maxCaracteres) {
         mostrarErro(`Cada texto pode ter até ${maxCaracteres.toLocaleString('pt-BR')} caracteres.`);
         return false;
     }

@@ -4,6 +4,16 @@ export async function buscarAnalises() {
     return resposta.json();
 }
 
+async function mensagemDeErro(resposta) {
+    const padrao = 'Não foi possível concluir a análise. Tente novamente.';
+    try {
+        const { detail } = await resposta.json();
+        return typeof detail === 'string' ? detail : padrao;
+    } catch {
+        return padrao;
+    }
+}
+
 export async function comparar(dados) {
     const resposta = await fetch('/api/comparar', {
         method: 'POST',
@@ -11,6 +21,6 @@ export async function comparar(dados) {
         body: JSON.stringify(dados)
     });
 
-    if (!resposta.ok) throw new Error('Não foi possível concluir a análise. Tente novamente.');
+    if (!resposta.ok) throw new Error(await mensagemDeErro(resposta));
     return resposta.json();
 }

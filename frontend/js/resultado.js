@@ -2,6 +2,10 @@ const painel = document.getElementById('painelResultado');
 
 function animarNota(nota) {
     const elemento = document.getElementById('resNota');
+    if (nota === null) {
+        elemento.textContent = '—';
+        return;
+    }
     const alvo = Math.round(nota * 100);
     const inicio = performance.now();
 
@@ -33,24 +37,51 @@ function destacarPar(id, ativo) {
         .forEach((marca) => marca.classList.toggle('ativo', ativo));
 }
 
-function desenharTexto(elemento, texto, faixas) {
-    elemento.replaceChildren();
+function desenharAvisos(avisos) {
+    const lista = document.getElementById('resAvisos');
+    lista.replaceChildren(...avisos.map((aviso) => {
+        const item = document.createElement('li');
+        item.textContent = aviso;
+        return item;
+    }));
+    lista.classList.toggle('escondido', avisos.length === 0);
+}
+
+export function fatiarEmTrechos(texto, faixas) {
+    //O backend conta caracteres, e o JS conta unidades UTF-16: um emoji vale 1 lá e 2 aqui.
+    const caracteres = Array.from(texto);
+    const fatiar = (inicio, fim) => caracteres.slice(inicio, fim).join('');
+    const pedacos = [];
     let posicao = 0;
 
     for (const { inicio, fim, id } of [...faixas].sort((a, b) => a.inicio - b.inicio)) {
         if (fim <= posicao) continue;
         const comeco = Math.max(inicio, posicao);
-        elemento.append(texto.slice(posicao, comeco));
+        pedacos.push({ texto: fatiar(posicao, comeco) });
+        pedacos.push({ texto: fatiar(comeco, fim), id });
+        posicao = fim;
+    }
+    pedacos.push({ texto: fatiar(posicao) });
+    return pedacos;
+}
+
+function desenharTexto(elemento, texto, faixas) {
+    elemento.replaceChildren();
+
+    for (const pedaco of fatiarEmTrechos(texto, faixas)) {
+        const { id } = pedaco;
+        if (id === undefined) {
+            elemento.append(pedaco.texto);
+            continue;
+        }
 
         const marca = document.createElement('mark');
-        marca.textContent = texto.slice(comeco, fim);
+        marca.textContent = pedaco.texto;
         marca.dataset.trecho = id;
         marca.addEventListener('mouseenter', () => destacarPar(id, true));
         marca.addEventListener('mouseleave', () => destacarPar(id, false));
         elemento.append(marca);
-        posicao = fim;
     }
-    elemento.append(texto.slice(posicao));
 }
 
 function desenharPares(pares) {
@@ -81,6 +112,7 @@ export function mostrarResultado(dados, textoA, textoB) {
     document.getElementById('resFaixa').textContent = dados.titulo;
     document.getElementById('resExplicacao').textContent = dados.explicacao;
     desenharMetricas(dados.metricas);
+    desenharAvisos(dados.avisos);
 
     document.getElementById('resLegenda').textContent = dados.legenda;
 

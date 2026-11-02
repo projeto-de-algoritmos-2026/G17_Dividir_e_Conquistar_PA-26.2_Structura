@@ -49,6 +49,7 @@
                 <span id="resFaixa" class="faixa"></span>
             </div>
             <p id="resExplicacao" class="explicacao"></p>
+            <ul id="resAvisos" class="avisos escondido"></ul>
             <dl id="resMetricas" class="metricas"></dl>
 
             <div class="textos">
@@ -73,8 +74,8 @@
             <summary>Como funciona</summary>
             <p>Cada modo responde a uma pergunta diferente.</p>
             <p><strong>Estrutural: os textos são construídos do mesmo jeito?</strong> Cada palavra vira uma categoria, como artigo, preposição ou tamanho, e o assunto deixa de importar. O algoritmo de Hirschberg divide o texto ao meio para achar a maior sequência de formatos em comum, e a nota desconta o que coincidiria por acaso. Uma medida à parte mostra as palavras idênticas.</p>
-            <p><strong>Semântica: as ideias vêm do original?</strong> Cada frase vira um vetor de significado. Hirschberg alinha as frases equivalentes, e um merge sort modificado conta quanto a ordem das ideias mudou. Cada frase pesa conforme sua similaridade, e a nota é o maior valor entre essa comparação e a proximidade geral entre os dois textos, o que permite reconhecer reescritas que fundem ou dividem frases.</p>
-            <p>Citações entre aspas e referências são ignoradas. O resultado orienta uma revisão humana e não prova plágio.</p>
+            <p><strong>Semântica: as ideias vêm do original?</strong> Cada frase vira um vetor de significado. Hirschberg alinha as frases equivalentes, e um merge sort modificado conta quanto a ordem das ideias mudou. Cada frase pesa conforme sua similaridade, e frases vizinhas também são comparadas juntas, para reconhecer reescritas que fundem ou dividem frases. A proximidade geral entre os textos só reforça a nota: sozinha, ela não basta, porque tratar do mesmo tema não é plágio.</p>
+            <p>Citações curtas entre aspas e a seção de referências no fim do texto ficam fora da análise, e a tela informa quanto foi ignorado. O resultado orienta uma revisão humana e não prova plágio.</p>
         </details>
     </main>
 
