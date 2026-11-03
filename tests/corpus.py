@@ -1,4 +1,4 @@
-"""Textos de todos os casos: é daqui que saem os testes e a tabela de docs/testes.md."""
+"""Textos de todos os casos usados em tests/test_casos.py."""
 from dataclasses import dataclass
 
 LEITURA = (
