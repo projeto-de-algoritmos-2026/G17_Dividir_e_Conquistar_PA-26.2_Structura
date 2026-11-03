@@ -69,10 +69,21 @@ Os dois modos usam **Hirschberg** para alinhar as frases e **Counting Inversions
 
 ```bash
 git clone https://github.com/projeto-de-algoritmos-2026/G17_Dividir_e_Conquistar_PA-26.2_Structura.git
-cd G17_Dividir_e_Conquistar_PA-26.2_Structura
+```
 
+```bash
+cd G17_Dividir_e_Conquistar_PA-26.2_Structura
+```
+
+```bash
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+```
+
+```bash
+# Linux source venv/bin/activate        # Windows: venv\Scripts\activate
+```
+
+```bash
 pip install -r backend/requirements.txt
 ```
 
