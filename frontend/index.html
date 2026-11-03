@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Structura</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Lato:wght@400;700&display=swap">
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/componentes.css">
+</head>
+<body>
+    <main class="pagina">
+        <header>
+            <h1 style="text-align: center;">Structura</h1>
+            
+            <h2 style="text-align: center;">Detector de Similaridade</h2>
+            <br>
+            <p class="subtitulo">Compare dois textos e veja o que foi copiado ou reescrito.</p>
+        </header>
+
+        <section class="painel" aria-label="Tipo de análise">
+            <div id="seletorModo" class="seletor" role="radiogroup" aria-label="Tipo de análise"></div>
+            <p id="descricaoModo" class="descricao"></p>
+        </section>
+
+        <section class="textos">
+            <div class="campo">
+                <label for="textoA">Texto original</label>
+                <textarea id="textoA" placeholder="Cole o texto original aqui..."></textarea>
+                <small id="contadorA" class="contador">0 palavras</small>
+            </div>
+            <div class="campo">
+                <label for="textoB">Texto suspeito</label>
+                <textarea id="textoB" placeholder="Cole o texto para comparar..."></textarea>
+                <small id="contadorB" class="contador">0 palavras</small>
+            </div>
+        </section>
+
+        <div class="acoes">
+            <button id="btnExemplo" class="botao botao-discreto" type="button">Usar exemplo</button>
+            <button id="btnAnalisar" class="botao" type="button">Analisar textos</button>
+        </div>
+
+        <p id="erro" class="erro escondido" role="alert"></p>
+
+        <section id="painelResultado" class="escondido" aria-live="polite">
+            <div class="placar">
+                <strong id="resNota" class="nota">0%</strong>
+                <span id="resFaixa" class="faixa"></span>
+            </div>
+            <p id="resExplicacao" class="explicacao"></p>
+            <ul id="resAvisos" class="avisos escondido"></ul>
+            <dl id="resMetricas" class="metricas"></dl>
+
+            <div class="textos">
+                <div>
+                    <h2>Original</h2>
+                    <div id="marcadoA" class="texto-marcado"></div>
+                </div>
+                <div>
+                    <h2>Suspeito</h2>
+                    <div id="marcadoB" class="texto-marcado"></div>
+                </div>
+            </div>
+            <p id="resLegenda" class="contador"></p>
+
+            <div id="blocoPares" class="escondido">
+                <h2 id="tituloPares"></h2>
+                <div id="resPares"></div>
+            </div>
+        </section>
+
+        <details class="como-funciona">
+            <summary>Como funciona</summary>
+            <p>Cada modo responde a uma pergunta diferente.</p>
+            <p><strong>Estrutural: os textos são construídos do mesmo jeito?</strong> Cada palavra vira uma classe gramatical, como substantivo, verbo ou preposição, e o assunto deixa de importar. O algoritmo de Hirschberg alinha cada frase com a frase de construção mais parecida do outro texto, em qualquer posição, e um merge sort modificado conta quanto a ordem das frases mudou. O texto inteiro também é comparado, descontando o que coincidiria por acaso, para reconhecer frases fundidas ou divididas. Uma medida à parte mostra as palavras idênticas.</p>
+            <p><strong>Semântica: as ideias vêm do original?</strong> Cada frase vira um vetor de significado. Hirschberg alinha as frases equivalentes, e um merge sort modificado conta quanto a ordem das ideias mudou. Cada frase pesa conforme sua similaridade, e frases vizinhas também são comparadas juntas, para reconhecer reescritas que fundem ou dividem frases. A proximidade geral entre os textos só reforça a nota: sozinha, ela não basta, porque tratar do mesmo tema não é plágio.</p>
+            <p>Citações curtas entre aspas e a seção de referências no fim do texto ficam fora da análise, e a tela informa quanto foi ignorado. O resultado orienta uma revisão humana e não prova plágio.</p>
+        </details>
+    </main>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
